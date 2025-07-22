@@ -429,16 +429,10 @@ function renderExceptionListPage() {
                         </div>
                     </div>
                     <div class="form-item">
-                        <label>客户名称</label>
+                        <label>客户简码</label>
                         <select id="customerName" style="width: 100%;">
                             <option value="">请选择或输入</option>
-                            <option value="华为技术有限公司">华为技术有限公司</option>
-                            <option value="小米科技有限责任公司">小米科技有限责任公司</option>
-                            <option value="OPPO广东移动通信有限公司">OPPO广东移动通信有限公司</option>
-                            <option value="vivo通信科技有限公司">vivo通信科技有限公司</option>
-                            <option value="联想集团有限公司">联想集团有限公司</option>
-                            <option value="TCL科技集团股份有限公司">TCL科技集团股份有限公司</option>
-                            <option value="海尔智家股份有限公司">海尔智家股份有限公司</option>
+                            <!-- 客户选项将通过loadCustomerOptions()函数动态加载 -->
                         </select>
                     </div>
                     <div class="form-item">
@@ -518,7 +512,7 @@ function renderExceptionListPage() {
                         <th class="fixed-column first">订单号</th>
                         <th class="scrollable-column">订单类型</th>
                         <th class="scrollable-column">订单国家</th>
-                        <th class="scrollable-column">客户名称</th>
+                        <th class="scrollable-column">客户简码</th>
                         <th class="scrollable-column">下单时间</th>
                         <th class="scrollable-column">承诺发货时间</th>
                         <th class="scrollable-column">承诺送达时间</th>
@@ -527,7 +521,7 @@ function renderExceptionListPage() {
                         <th class="scrollable-column">异常状态</th>
                         <th class="scrollable-column">异常开始时间</th>
                         <th class="scrollable-column">异常关闭时间</th>
-                        <th class="scrollable-column">WOMS单号</th>
+                        <th class="scrollable-column">WOMS工单号</th>
                         <th class="fixed-column last">操作</th>
                     </tr>
                 </thead>
@@ -537,7 +531,7 @@ function renderExceptionListPage() {
                         <td class="fixed-column first">ORD20240701001</td>
                         <td>跨境直发</td>
                         <td>泰国</td>
-                        <td>华为技术有限公司</td>
+                        <td>hRvDgUX263Y2FuWbVzB8</td>
                         <td>2024-07-01 10:30</td>
                         <td>2024-07-05 18:00</td>
                         <td>2024-07-10 18:00</td>
@@ -555,7 +549,7 @@ function renderExceptionListPage() {
                         <td class="fixed-column first">ORD20240701002</td>
                         <td>本本直发</td>
                         <td>越南</td>
-                        <td>小米科技有限责任公司</td>
+                        <td>yPpvH0qjoPodSR8M4LCb</td>
                         <td>2024-07-01 14:20</td>
                         <td>2024-07-03 18:00</td>
                         <td>2024-07-08 18:00</td>
@@ -573,7 +567,7 @@ function renderExceptionListPage() {
                         <td class="fixed-column first">ORD20240701003</td>
                         <td>备货仓发</td>
                         <td>马来西亚</td>
-                        <td>OPPO广东移动通信有限公司</td>
+                        <td>tPpvH0qjoPodSR8M4LCt</td>
                         <td>2024-07-01 16:45</td>
                         <td>2024-07-04 18:00</td>
                         <td>2024-07-09 18:00</td>
@@ -635,6 +629,14 @@ function renderExceptionListPage() {
                 </div>
             </div>
         </div>
+
+        <!-- 单元格悬浮气泡提示框 -->
+        <div class="cell-tooltip" id="cellTooltip">
+            <div class="tooltip-content" id="cellTooltipContent">
+                <!-- 气泡内容将通过JavaScript动态生成 -->
+            </div>
+            <div class="tooltip-copy-btn" id="tooltipCopyBtn" onclick="copyCellContent()">复制</div>
+        </div>
     `;
     
     tableContainer.innerHTML = exceptionPageHTML;
@@ -647,6 +649,14 @@ function renderExceptionListPage() {
 function initializeExceptionPage() {
     const expandToggle = document.getElementById('expandToggle');
     const formContent = document.getElementById('formContent');
+    
+    // 默认展开查询条件
+    if (formContent) {
+        formContent.classList.add('expanded');
+    }
+    if (expandToggle) {
+        expandToggle.textContent = '收起';
+    }
     
     if (expandToggle && formContent) {
         expandToggle.addEventListener('click', function() {
@@ -661,8 +671,58 @@ function initializeExceptionPage() {
         });
     }
     
-    // 初始化分页
-    initExceptionPagination();
+    // 首先加载客户数据到下拉框，然后初始化分页
+    loadCustomerOptions().then(() => {
+        // 初始化分页
+        initExceptionPagination();
+    }).catch(() => {
+        // 如果加载客户选项失败，仍然初始化分页
+        initExceptionPagination();
+    });
+}
+
+// 加载客户选项到下拉框
+async function loadCustomerOptions() {
+    try {
+        console.log('开始加载客户选项...');
+        const customerData = await loadCustomerConfigData();
+        const customerSelect = document.getElementById('customerName');
+        
+        if (!customerSelect) {
+            console.error('找不到customerName下拉框元素');
+            return;
+        }
+        
+        if (customerData.length > 0) {
+            console.log('正在填充客户简码选项，共', customerData.length, '个客户记录');
+            
+            // 清空现有选项（保留第一个"请选择或输入"选项）
+            customerSelect.innerHTML = '<option value="">请选择或输入</option>';
+            
+            // 去重客户简码，并过滤空值
+            const uniqueClientCodes = [...new Set(customerData
+                .map(customer => customer.clientCode)
+                .filter(code => code && code.trim())
+            )];
+            
+            console.log('去重后的客户简码数量:', uniqueClientCodes.length);
+            
+            // 添加客户选项（显示clientCode）
+            uniqueClientCodes.forEach(clientCode => {
+                const option = document.createElement('option');
+                option.value = clientCode;
+                option.textContent = clientCode;
+                customerSelect.appendChild(option);
+            });
+            
+            console.log('成功加载客户选项，共', uniqueClientCodes.length, '个客户简码');
+        } else {
+            console.warn('没有加载到客户数据');
+        }
+    } catch (error) {
+        console.error('加载客户选项失败:', error);
+        // 保持默认的客户选项
+    }
 }
 
 // 重置搜索表单
@@ -722,21 +782,83 @@ function closeModal(modalId) {
     }
 }
 
-// 分页相关函数
-function initExceptionPagination() {
-    // 模拟异常数据
+// 加载客户配置数据
+async function loadCustomerConfigData() {
+    try {
+        const response = await fetch('./data/客户配置_20250722095454_lizimeng16_保密信息_请勿外传.csv');
+        if (!response.ok) {
+            throw new Error('客户配置文件加载失败');
+        }
+        
+        const csvText = await response.text();
+        const lines = csvText.trim().split('\n');
+        const customerData = [];
+        
+        // 跳过第一行标题
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i];
+            if (!line.trim()) continue;
+            
+            try {
+                // 分割CSV行，处理JSON字段
+                const columns = line.split(',');
+                if (columns.length >= 3) {
+                    const duccInfoStr = columns[0];
+                    // 解析JSON字符串
+                    const duccInfo = JSON.parse(duccInfoStr.replace(/^"/, '').replace(/"$/, '').replace(/""/g, '"'));
+                    
+                    customerData.push({
+                        clientName: duccInfo.clientName || '',
+                        clientCode: duccInfo.clientCode || '',
+                        country: duccInfo.country || '',
+                        pin: duccInfo.pin || '',
+                        contractCode: duccInfo.contractCode || ''
+                    });
+                }
+            } catch (parseError) {
+                console.warn('解析客户配置行失败:', parseError, '行内容:', line);
+            }
+        }
+        
+        console.log('成功加载客户配置数据，共', customerData.length, '条记录');
+        return customerData;
+    } catch (error) {
+        console.error('加载客户配置数据失败:', error);
+        throw error;
+    }
+}
+
+// 默认异常数据初始化（当客户配置加载失败时使用）
+function initDefaultExceptionData() {
     const mockExceptionData = [];
+    const exceptionTypes = [
+        '超期未审批',
+        '超期未确认', 
+        '超期未发货',
+        '超期未到集运',
+        '集运超期未发运',
+        '超期未报关',
+        '超期未离港',
+        '超期未到港',
+        '超期未清关',
+        '超期未到企配',
+        '超期未派送',
+        '超期未妥投',
+        '签单超期未合格',
+        '超期未完成'
+    ];
+    
     for (let i = 1; i <= 156; i++) {
         mockExceptionData.push({
             orderNo: `ORD2024070${String(i).padStart(4, '0')}`,
             orderType: ['跨境直发', '本本直发', '备货仓发', '备货入库'][i % 4],
             country: ['泰国', '越南', '马来西亚', '印尼', '巴西', '匈牙利'][i % 6],
-            customer: ['华为技术有限公司', '小米科技有限责任公司', 'OPPO广东移动通信有限公司'][i % 3],
+            customer: ['hRvDgUX263Y2FuWbVzB8', 'yPpvH0qjoPodSR8M4LCb', 'tPpvH0qjoPodSR8M4LCt'][i % 3], // 使用clientCode格式
             orderTime: `2024-07-${String(Math.floor(i/5) + 1).padStart(2, '0')} ${String(Math.floor(Math.random() * 24)).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
             promiseShipTime: `2024-07-${String(Math.floor(i/5) + 3).padStart(2, '0')} 18:00`,
             promiseDeliveryTime: `2024-07-${String(Math.floor(i/5) + 8).padStart(2, '0')} 18:00`,
-            exceptionStage: ['运输环节', '清关环节', '仓储环节', '配送环节'][i % 4],
-            exceptionType: ['物流延误', '清关异常', '库存不足', '地址错误'][i % 4],
+            exceptionStage: ['订单创建', '订单已审批', '订单确认', '商品发货', '集运中心收货', '集运中心发货', '起运国离港', '目的国到港', '目的港清关', '企配中心收货', '企配中心发货', '订单派送', '订单妥投', '签单审批通过', '订单完成'][i % 15],
+            exceptionType: exceptionTypes[i % exceptionTypes.length],
             exceptionStatus: ['处理中', '已关闭', '待处理'][i % 3],
             exceptionStartTime: `2024-07-${String(Math.floor(i/5) + 4).padStart(2, '0')} ${String(Math.floor(Math.random() * 24)).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
             exceptionCloseTime: i % 3 === 1 ? `2024-07-${String(Math.floor(i/5) + 5).padStart(2, '0')} ${String(Math.floor(Math.random() * 24)).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}` : '-',
@@ -752,6 +874,77 @@ function initExceptionPagination() {
     updatePaginationInfo();
 }
 
+// 分页相关函数
+function initExceptionPagination() {
+    // 首先加载客户配置数据
+    loadCustomerConfigData().then(customerData => {
+        // 模拟异常数据
+        const mockExceptionData = [];
+        const exceptionTypes = [
+            '超期未审批',
+            '超期未确认', 
+            '超期未发货',
+            '超期未到集运',
+            '集运超期未发运',
+            '超期未报关',
+            '超期未离港',
+            '超期未到港',
+            '超期未清关',
+            '超期未到企配',
+            '超期未派送',
+            '超期未妥投',
+            '签单超期未合格',
+            '超期未完成'
+        ];
+        
+        // 国家代码映射
+        const countryMapping = {
+            'TH': '泰国',
+            'MY': '马来西亚', 
+            'HK': '香港',
+            'CN': '中国',
+            'VN': '越南',
+            'BR': '巴西',
+            'HU': '匈牙利',
+            'ID': '印度尼西亚'
+        };
+        
+        for (let i = 1; i <= 156; i++) {
+            // 从客户配置中随机选择一个客户
+            const randomCustomer = customerData[i % customerData.length];
+            const countryCode = randomCustomer.country;
+            const countryName = countryMapping[countryCode] || countryCode;
+            
+            mockExceptionData.push({
+                orderNo: `ORD2024070${String(i).padStart(4, '0')}`,
+                orderType: ['跨境直发', '本本直发', '备货仓发', '备货入库'][i % 4],
+                country: countryName,
+                customer: randomCustomer.clientCode, // 使用clientCode而不是clientName
+                orderTime: `2024-07-${String(Math.floor(i/5) + 1).padStart(2, '0')} ${String(Math.floor(Math.random() * 24)).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
+                promiseShipTime: `2024-07-${String(Math.floor(i/5) + 3).padStart(2, '0')} 18:00`,
+                promiseDeliveryTime: `2024-07-${String(Math.floor(i/5) + 8).padStart(2, '0')} 18:00`,
+                exceptionStage: ['订单创建', '订单已审批', '订单确认', '商品发货', '集运中心收货', '集运中心发货', '起运国离港', '目的国到港', '目的港清关', '企配中心收货', '企配中心发货', '订单派送', '订单妥投', '签单审批通过', '订单完成'][i % 15],
+                exceptionType: exceptionTypes[i % exceptionTypes.length],
+                exceptionStatus: ['处理中', '已关闭', '待处理'][i % 3],
+                exceptionStartTime: `2024-07-${String(Math.floor(i/5) + 4).padStart(2, '0')} ${String(Math.floor(Math.random() * 24)).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
+                exceptionCloseTime: i % 3 === 1 ? `2024-07-${String(Math.floor(i/5) + 5).padStart(2, '0')} ${String(Math.floor(Math.random() * 24)).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}` : '-',
+                womsNo: `WOMS202407${String(i).padStart(4, '0')}`
+            });
+        }
+        
+        exceptionTotalItems = mockExceptionData.length;
+        exceptionTotalPages = Math.ceil(exceptionTotalItems / exceptionPageSize);
+        exceptionPageData = mockExceptionData;
+        
+        updateExceptionTable();
+        updatePaginationInfo();
+    }).catch(error => {
+        console.error('加载客户配置数据失败:', error);
+        // 如果加载失败，使用默认数据
+        initDefaultExceptionData();
+    });
+}
+
 function updateExceptionTable() {
     const startIndex = (exceptionCurrentPage - 1) * exceptionPageSize;
     const endIndex = startIndex + exceptionPageSize;
@@ -764,19 +957,19 @@ function updateExceptionTable() {
     currentPageData.forEach(item => {
         tableHTML += `
             <tr>
-                <td class="fixed-column first">${item.orderNo}</td>
-                <td>${item.orderType}</td>
-                <td>${item.country}</td>
-                <td>${item.customer}</td>
-                <td>${item.orderTime}</td>
-                <td>${item.promiseShipTime}</td>
-                <td>${item.promiseDeliveryTime}</td>
-                <td>${item.exceptionStage}</td>
-                <td>${item.exceptionType}</td>
-                <td>${item.exceptionStatus}</td>
-                <td>${item.exceptionStartTime}</td>
-                <td>${item.exceptionCloseTime}</td>
-                <td>${item.womsNo}</td>
+                <td class="fixed-column first cell-hover" data-content="${escapeHtml(item.orderNo)}" onmouseenter="showCellTooltip(event, this)" onmouseleave="hideCellTooltip()">${item.orderNo}</td>
+                <td class="cell-hover" data-content="${escapeHtml(item.orderType)}" onmouseenter="showCellTooltip(event, this)" onmouseleave="hideCellTooltip()">${item.orderType}</td>
+                <td class="cell-hover" data-content="${escapeHtml(item.country)}" onmouseenter="showCellTooltip(event, this)" onmouseleave="hideCellTooltip()">${item.country}</td>
+                <td class="cell-hover" data-content="${escapeHtml(item.customer)}" onmouseenter="showCellTooltip(event, this)" onmouseleave="hideCellTooltip()">${item.customer}</td>
+                <td class="cell-hover" data-content="${escapeHtml(item.orderTime)}" onmouseenter="showCellTooltip(event, this)" onmouseleave="hideCellTooltip()">${item.orderTime}</td>
+                <td class="cell-hover" data-content="${escapeHtml(item.promiseShipTime)}" onmouseenter="showCellTooltip(event, this)" onmouseleave="hideCellTooltip()">${item.promiseShipTime}</td>
+                <td class="cell-hover" data-content="${escapeHtml(item.promiseDeliveryTime)}" onmouseenter="showCellTooltip(event, this)" onmouseleave="hideCellTooltip()">${item.promiseDeliveryTime}</td>
+                <td class="cell-hover" data-content="${escapeHtml(item.exceptionStage)}" onmouseenter="showCellTooltip(event, this)" onmouseleave="hideCellTooltip()">${item.exceptionStage}</td>
+                <td class="cell-hover" data-content="${escapeHtml(item.exceptionType)}" onmouseenter="showCellTooltip(event, this)" onmouseleave="hideCellTooltip()">${item.exceptionType}</td>
+                <td class="cell-hover" data-content="${escapeHtml(item.exceptionStatus)}" onmouseenter="showCellTooltip(event, this)" onmouseleave="hideCellTooltip()">${item.exceptionStatus}</td>
+                <td class="cell-hover" data-content="${escapeHtml(item.exceptionStartTime)}" onmouseenter="showCellTooltip(event, this)" onmouseleave="hideCellTooltip()">${item.exceptionStartTime}</td>
+                <td class="cell-hover" data-content="${escapeHtml(item.exceptionCloseTime)}" onmouseenter="showCellTooltip(event, this)" onmouseleave="hideCellTooltip()">${item.exceptionCloseTime}</td>
+                <td class="cell-hover" data-content="${escapeHtml(item.womsNo)}" onmouseenter="showCellTooltip(event, this)" onmouseleave="hideCellTooltip()">${item.womsNo}</td>
                 <td class="fixed-column last">
                     <a href="#" class="action-link" onclick="viewExceptionDetail('${item.orderNo}')">详情</a>
                 </td>
@@ -882,3 +1075,203 @@ function jumpToPage() {
     
     goToPage(targetPage);
 }
+
+// 全局变量存储当前气泡内容和计时器
+let cellTooltipTimer = null;
+let currentCellContent = '';
+
+// HTML转义函数
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// 显示单元格悬浮气泡
+function showCellTooltip(event, cellElement) {
+    // 清除之前的定时器
+    if (cellTooltipTimer) {
+        clearTimeout(cellTooltipTimer);
+    }
+    
+    const tooltip = document.getElementById('cellTooltip');
+    const tooltipContent = document.getElementById('cellTooltipContent');
+    
+    if (!tooltip || !tooltipContent || !cellElement) return;
+    
+    // 获取单元格内容
+    const cellContent = cellElement.getAttribute('data-content') || cellElement.textContent.trim();
+    currentCellContent = cellContent;
+    
+    // 如果内容为空或只有"-"，不显示气泡
+    if (!cellContent || cellContent === '-' || cellContent.trim() === '') {
+        hideCellTooltip();
+        return;
+    }
+    
+    // 设置气泡内容
+    tooltipContent.textContent = cellContent;
+    
+    // 显示气泡
+    tooltip.style.display = 'block';
+    tooltip.style.opacity = '0';
+    
+    // 计算位置
+    updateCellTooltipPosition(event, cellElement);
+    
+    // 渐显动画
+    setTimeout(() => {
+        if (tooltip.style.display === 'block') {
+            tooltip.style.opacity = '1';
+        }
+    }, 10);
+}
+
+// 隐藏单元格悬浮气泡
+function hideCellTooltip() {
+    const tooltip = document.getElementById('cellTooltip');
+    if (!tooltip) return;
+    
+    // 延迟隐藏，给用户时间将鼠标移到气泡上
+    cellTooltipTimer = setTimeout(() => {
+        tooltip.style.opacity = '0';
+        setTimeout(() => {
+            tooltip.style.display = 'none';
+        }, 200);
+    }, 100);
+}
+
+// 更新气泡位置
+function updateCellTooltipPosition(event, cellElement) {
+    const tooltip = document.getElementById('cellTooltip');
+    if (!tooltip || !cellElement) return;
+    
+    const cellRect = cellElement.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // 默认位置：单元格上方中央
+    let left = cellRect.left + (cellRect.width / 2) - (tooltipRect.width / 2);
+    let top = cellRect.top - tooltipRect.height - 8;
+    
+    // 检查是否超出视口左边界
+    if (left < 10) {
+        left = 10;
+    }
+    
+    // 检查是否超出视口右边界
+    if (left + tooltipRect.width > viewportWidth - 10) {
+        left = viewportWidth - tooltipRect.width - 10;
+    }
+    
+    // 检查是否超出视口顶部，如果是则显示在单元格下方
+    if (top < 10) {
+        top = cellRect.bottom + 8;
+    }
+    
+    // 检查是否超出视口底部
+    if (top + tooltipRect.height > viewportHeight - 10) {
+        top = viewportHeight - tooltipRect.height - 10;
+    }
+    
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = top + 'px';
+}
+
+// 复制单元格内容
+function copyCellContent() {
+    if (!currentCellContent) return;
+    
+    // 使用现代浏览器的 Clipboard API
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(currentCellContent).then(() => {
+            showCopySuccess();
+        }).catch(err => {
+            console.error('复制失败:', err);
+            fallbackCopyText(currentCellContent);
+        });
+    } else {
+        // 降级方案
+        fallbackCopyText(currentCellContent);
+    }
+}
+
+// 降级复制方案
+function fallbackCopyText(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            showCopySuccess();
+        } else {
+            showCopyError();
+        }
+    } catch (err) {
+        console.error('降级复制失败:', err);
+        showCopyError();
+    } finally {
+        document.body.removeChild(textArea);
+    }
+}
+
+// 显示复制成功提示
+function showCopySuccess() {
+    const copyBtn = document.getElementById('tooltipCopyBtn');
+    if (copyBtn) {
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = '已复制';
+        copyBtn.style.backgroundColor = '#27ae60';
+        
+        setTimeout(() => {
+            copyBtn.textContent = originalText;
+            copyBtn.style.backgroundColor = '';
+        }, 1500);
+    }
+}
+
+// 显示复制失败提示
+function showCopyError() {
+    const copyBtn = document.getElementById('tooltipCopyBtn');
+    if (copyBtn) {
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = '复制失败';
+        copyBtn.style.backgroundColor = '#e74c3c';
+        
+        setTimeout(() => {
+            copyBtn.textContent = originalText;
+            copyBtn.style.backgroundColor = '';
+        }, 1500);
+    }
+}
+
+// 为气泡添加鼠标进入和离开事件
+document.addEventListener('DOMContentLoaded', function() {
+    // 等待一段时间确保元素已创建
+    setTimeout(() => {
+        const tooltip = document.getElementById('cellTooltip');
+        if (tooltip) {
+            // 鼠标进入气泡时取消隐藏计时器
+            tooltip.addEventListener('mouseenter', function() {
+                if (cellTooltipTimer) {
+                    clearTimeout(cellTooltipTimer);
+                    cellTooltipTimer = null;
+                }
+            });
+            
+            // 鼠标离开气泡时隐藏
+            tooltip.addEventListener('mouseleave', function() {
+                hideCellTooltip();
+            });
+        }
+    }, 1000);
+});

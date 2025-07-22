@@ -863,3 +863,105 @@ body {
 .page-jump button:hover {
     background-color: #f8f9fa;
 }
+
+/* 单元格悬浮气泡样式 */
+.cell-tooltip {
+    position: fixed;
+    z-index: 10000;
+    background: white;
+    border: 1px solid #e1e5e9;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    display: none;
+    max-width: 300px;
+    min-width: 120px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: auto;
+}
+
+.cell-tooltip .tooltip-content {
+    padding: 8px 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #2c3e50;
+    word-wrap: break-word;
+    word-break: break-all;
+    white-space: pre-wrap;
+    max-height: 200px;
+    overflow-y: auto;
+    user-select: text;
+    cursor: text;
+}
+
+.cell-tooltip .tooltip-copy-btn {
+    border-top: 1px solid #e1e5e9;
+    padding: 6px 12px;
+    text-align: center;
+    background: #f8f9fa;
+    color: #495057;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 0 0 6px 6px;
+}
+
+.cell-tooltip .tooltip-copy-btn:hover {
+    background: #e9ecef;
+    color: #2c3e50;
+}
+
+.cell-tooltip .tooltip-copy-btn:active {
+    transform: translateY(1px);
+}
+
+/* 单元格悬浮效果 */
+.cell-hover {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 150px;
+}
+
+.cell-hover:hover {
+    background-color: #f8f9fa !important;
+}
+
+/* 为超长内容的单元格添加省略号标识 */
+.cell-hover::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.cell-hover:hover::after {
+    opacity: 1;
+}
+
+/* 自定义滚动条样式 */
+.cell-tooltip .tooltip-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.cell-tooltip .tooltip-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 2px;
+}
+
+.cell-tooltip .tooltip-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 2px;
+}
+
+.cell-tooltip .tooltip-content::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
