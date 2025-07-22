@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工采国际</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧菜单 -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>工采国际</h2>
+                <button class="toggle-btn" id="toggleBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+            <nav class="menu">
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="商品类目管理">商品类目管理</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="履约商品管理">履约商品管理</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="全球商品池维护">全球商品池维护</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="MKU管理">MKU管理</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="客户运营">客户运营</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="供应链履约管理">供应链履约管理</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="税务管理">税务管理</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="价格管控">价格管控</a>
+                    </li>
+                    <li class="menu-item has-submenu">
+                        <a href="#" class="menu-link">
+                            <span>订单管理</span>
+                            <i class="arrow">▼</i>
+                        </a>
+                        <ul class="submenu">
+                            <li><a href="#" class="submenu-link" data-page="跨境订单列表">跨境订单列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="越南本土订单列表">越南本土订单列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="泰国本土订单列表">泰国本土订单列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="巴西本土订单列表">巴西本土订单列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="马来本土订单列表">马来本土订单列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="匈牙利本土订单列表">匈牙利本土订单列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="印尼本土订单列表">印尼本土订单列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="香港本土订单列表">香港本土订单列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="备货出库订单列表">备货出库订单列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="订单履约">订单履约</a></li>
+                            <li><a href="#" class="submenu-link" data-page="物流轨迹">物流轨迹</a></li>
+                            <li><a href="#" class="submenu-link" data-page="物流轨迹维护">物流轨迹维护</a></li>
+                            <li><a href="#" class="submenu-link" data-page="订单轨迹查询">订单轨迹查询</a></li>
+                            <li><a href="#" class="submenu-link" data-page="申请单管理">申请单管理</a></li>
+                            <li><a href="#" class="submenu-link" data-page="越南发票管理">越南发票管理</a></li>
+                            <li><a href="#" class="submenu-link" data-page="泰国发票管理">泰国发票管理</a></li>
+                            <li><a href="#" class="submenu-link" data-page="马来发票管理">马来发票管理</a></li>
+                            <li><a href="#" class="submenu-link" data-page="印尼发票管理">印尼发票管理</a></li>
+                            <li><a href="#" class="submenu-link" data-page="巴西发票管理">巴西发票管理</a></li>
+                            <li><a href="#" class="submenu-link" data-page="匈牙利发票管理">匈牙利发票管理</a></li>
+                            <li><a href="#" class="submenu-link" data-page="履约信息缺失监控">履约信息缺失监控</a></li>
+                            <li><a href="#" class="submenu-link" data-page="报关单管理">报关单管理</a></li>
+                            <li><a href="#" class="submenu-link" data-page="巴西发票推送比亚迪">巴西发票推送比亚迪</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="三方归档数据">三方归档数据</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="售后管理">售后管理</a>
+                    </li>
+                    <li class="menu-item has-submenu">
+                        <a href="#" class="menu-link">
+                            <span>采购单管理</span>
+                            <i class="arrow">▼</i>
+                        </a>
+                        <ul class="submenu">
+                            <li><a href="#" class="submenu-link" data-page="泰国采购单列表">泰国采购单列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="越南本土采购单列表">越南本土采购单列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="马来本土采购单列表">马来本土采购单列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="巴西本土采购单列表">巴西本土采购单列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="匈牙利本土采购单列表">匈牙利本土采购单列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="印尼本土采购单列表">印尼本土采购单列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="跨境备货采购单">跨境备货采购单</a></li>
+                            <li><a href="#" class="submenu-link" data-page="本土备货采购单列表">本土备货采购单列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="香港本土采购单列表">香港本土采购单列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="本本预报备货单">本本预报备货单</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-item has-submenu">
+                        <a href="#" class="menu-link">
+                            <span>履约管理</span>
+                            <i class="arrow">▼</i>
+                        </a>
+                        <ul class="submenu">
+                            <li><a href="#" class="submenu-link" data-page="一段运单列表">一段运单列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="末端派送列表">末端派送列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="履约异常列表">履约异常列表</a></li>
+                            <li><a href="#" class="submenu-link" data-page="时效设置">时效设置</a></li>
+                            <li><a href="#" class="submenu-link" data-page="关务管理">关务管理</a></li>
+                            <li><a href="#" class="submenu-link" data-page="出入库单列表">出入库单列表</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="任务中心">任务中心</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="供应商管理">供应商管理</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="图库管理">图库管理</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="财务管理">财务管理</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="基础信息管理">基础信息管理</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="仓库管理">仓库管理</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="退税管理">退税管理</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="审批中心">审批中心</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="语言框架">语言框架</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" data-page="运维管理">运维管理</a>
+                    </li>
+                    <li class="menu-item has-submenu">
+                        <a href="#" class="menu-link">
+                            <span>客服管理</span>
+                            <i class="arrow">▼</i>
+                        </a>
+                        <ul class="submenu">
+                            <li><a href="#" class="submenu-link" data-page="客服信息查询">客服信息查询</a></li>
+                            <li><a href="#" class="submenu-link" data-page="订单查询">订单查询</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-content" id="mainContent">
+            <div class="content-header">
+                <h1 id="pageTitle">欢迎使用履约控制塔</h1>
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="搜索表格内容..." />
+                    <button id="searchBtn">搜索</button>
+                </div>
+            </div>
+            <div class="content-body">
+                <div id="tableContainer">
+                    <div class="empty-state">
+                        <p>请从左侧菜单选择功能模块</p>
+                        <p>表格数据将在CSV文件上传后显示</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
