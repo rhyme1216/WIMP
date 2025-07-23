@@ -25,6 +25,14 @@ let generalTotalPages = 1;
 let generalTotalItems = 0;
 let generalPageData = [];
 
+// 末端派送列表分页相关变量
+let deliveryCurrentPage = 1;
+let deliveryPageSize = 20;
+let deliveryTotalPages = 1;
+let deliveryTotalItems = 0;
+let deliveryPageData = [];
+let deliveryFullData = [];
+
 // DOM 元素
 const sidebar = document.getElementById('sidebar');
 const mainContent = document.getElementById('mainContent');
@@ -120,6 +128,8 @@ function navigateToPage(pageName) {
         renderExceptionListPage();
     } else if (pageName === '订单列表') {
         renderOrderListPage();
+    } else if (pageName === '末端派送列表') {
+        renderDeliveryListPage();
     } else {
         // 隐藏搜索容器，显示默认的表格容器
         document.querySelector('.search-container').style.display = 'flex';
@@ -2462,4 +2472,632 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// 末端派送列表页面渲染
+function renderDeliveryListPage() {
+    // 隐藏默认搜索容器
+    document.querySelector('.search-container').style.display = 'none';
+    
+    // 首先渲染页面结构
+    renderDeliveryPageStructure();
+    
+    // 然后加载派送数据
+    loadDeliveryData();
+}
+
+// 渲染末端派送页面结构
+function renderDeliveryPageStructure() {
+    const deliveryPageHTML = `
+        <!-- 条件查询搜索框 -->
+        <div class="order-search-container" style="font-size: 12px;">
+            <div class="order-search-header">
+                <span class="order-search-title">查询条件</span>
+                <button class="order-expand-toggle" id="deliveryExpandToggle">收起</button>
+            </div>
+            <div class="order-form-content expanded" id="deliveryFormContent">
+                <div class="order-search-form">
+                    <!-- 第一行 -->
+                    <div class="order-form-group">
+                        <label>二段运单号</label>
+                        <input type="text" id="secondSegmentNumber" placeholder="请输入">
+                    </div>
+                    <div class="order-form-group">
+                        <label>订单编号</label>
+                        <textarea id="deliveryOrderNumbers" placeholder="请输入订单编号，支持多个单号换行输入"></textarea>
+                    </div>
+                    <div class="order-form-group">
+                        <label>二段运单状态</label>
+                        <select id="secondSegmentStatus">
+                            <option value="">请选择</option>
+                            <option value="待发运">待发运</option>
+                            <option value="已发运">已发运</option>
+                            <option value="已妥投">已妥投</option>
+                        </select>
+                    </div>
+                    <div class="order-form-group">
+                        <label>客户名称</label>
+                        <select id="deliveryCustomerName" class="searchable-select">
+                            <option value="">请选择或输入</option>
+                            <!-- 客户选项将通过loadDeliveryCustomerOptions()函数动态加载 -->
+                        </select>
+                    </div>
+                    
+                    <!-- 第二行 -->
+                    <div class="order-form-group">
+                        <label>运输方式</label>
+                        <select id="transportMethod">
+                            <option value="">请选择</option>
+                            <option value="快递运输">快递运输</option>
+                            <option value="车辆运输">车辆运输</option>
+                        </select>
+                    </div>
+                    <div class="order-form-group">
+                        <label>承运单号</label>
+                        <input type="text" id="carrierNumber" placeholder="请输入">
+                    </div>
+                    <div class="order-form-group">
+                        <label>承运商</label>
+                        <input type="text" id="carrierName" placeholder="请输入">
+                    </div>
+                    <div class="order-form-group">
+                        <label>二段发运时间</label>
+                        <div class="date-range-input">
+                            <input type="date" id="secondSegmentShipStart" placeholder="请选择">
+                            <span class="separator">至</span>
+                            <input type="date" id="secondSegmentShipEnd" placeholder="请选择">
+                        </div>
+                    </div>
+                    
+                    <!-- 第三行 -->
+                    <div class="order-form-group">
+                        <label>二段运单妥投时间</label>
+                        <div class="date-range-input">
+                            <input type="date" id="secondSegmentDeliveryStart" placeholder="请选择">
+                            <span class="separator">至</span>
+                            <input type="date" id="secondSegmentDeliveryEnd" placeholder="请选择">
+                        </div>
+                    </div>
+                    <div class="order-form-group">
+                        <label>客户配送单号</label>
+                        <input type="text" id="customerDeliveryNumber" placeholder="请输入">
+                    </div>
+                    <div class="order-form-group"></div> <!-- 占位符 -->
+                    <div class="order-form-group"></div> <!-- 占位符 -->
+                </div>
+                <div class="order-actions">
+                    <button class="btn-reset" onclick="resetDeliverySearchForm()">重置</button>
+                    <button class="btn-search" onclick="searchDeliveryList()">查询</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 末端派送列表 -->
+        <div class="order-table-container" style="font-size: 12px;">
+            <div class="order-table-header">
+                <div class="order-table-tools">
+                    <div class="left-tools">
+                        <button class="btn-export" onclick="exportReceiptForm()">导出签收单</button>
+                    </div>
+                    <div class="right-tools">
+                        <button class="btn-columns" onclick="showDeliveryColumnSelector()">隐藏字段</button>
+                    </div>
+                </div>
+            </div>
+            <div class="order-table-wrapper">
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th class="fixed-column first" style="width: 120px; min-width: 120px;">二段运单号</th>
+                            <th class="scrollable-column">二段运单状态</th>
+                            <th class="scrollable-column">客户名称</th>
+                            <th class="scrollable-column">运输方式</th>
+                            <th class="scrollable-column">承运单号</th>
+                            <th class="scrollable-column">承运商</th>
+                            <th class="scrollable-column">配送人名字</th>
+                            <th class="scrollable-column">车牌号</th>
+                            <th class="scrollable-column">配送人电话</th>
+                            <th class="scrollable-column">二段发运时间</th>
+                            <th class="scrollable-column">二段运单妥投时间</th>
+                            <th class="scrollable-column">签收单审批状态</th>
+                            <th class="fixed-action" style="width: 120px; min-width: 120px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deliveryTableBody">
+                        <!-- 数据将通过loadDeliveryData()函数动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 分页组件 -->
+        <div class="pagination-container" style="font-size: 12px;">
+            <div class="pagination-info">
+                <span>共 <span id="deliveryTotalItems">${deliveryTotalItems}</span> 条</span>
+            </div>
+            <div class="pagination-controls">
+                <div class="pagination-pages" id="deliveryPaginationPages">
+                    ${renderDeliveryPaginationButtons()}
+                </div>
+                <div class="page-size-selector">
+                    <select id="deliveryPageSizeSelect" onchange="changeDeliveryPageSize()">
+                        <option value="10" ${deliveryPageSize === 10 ? 'selected' : ''}>10条/页</option>
+                        <option value="20" ${deliveryPageSize === 20 ? 'selected' : ''}>20条/页</option>
+                        <option value="50" ${deliveryPageSize === 50 ? 'selected' : ''}>50条/页</option>
+                        <option value="100" ${deliveryPageSize === 100 ? 'selected' : ''}>100条/页</option>
+                    </select>
+                </div>
+                <div class="page-jump">
+                    <span>跳至</span>
+                    <input type="number" id="deliveryJumpPageInput" min="1" max="${deliveryTotalPages}" value="${deliveryCurrentPage}">
+                    <span>页</span>
+                    <button onclick="jumpToDeliveryPage()">跳转</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导出确认模态框 -->
+        <div class="modal-overlay" id="deliveryExportModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="modal-title">导出提示</span>
+                    <button class="modal-close" onclick="closeModal('deliveryExportModal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    已导出订单信息，请到任务中心查看
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-modal primary" onclick="closeModal('deliveryExportModal')">确认</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 隐藏字段选择模态框 -->
+        <div class="modal-overlay" id="deliveryColumnSelectorModal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <span class="modal-title">选择显示字段</span>
+                    <button class="modal-close" onclick="closeModal('deliveryColumnSelectorModal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="column-selector-container">
+                        <div class="field-group">
+                            <label><input type="checkbox" value="secondSegmentNumber" checked disabled> 二段运单号</label>
+                            <label><input type="checkbox" value="secondSegmentStatus" checked> 二段运单状态</label>
+                            <label><input type="checkbox" value="customerName" checked> 客户名称</label>
+                            <label><input type="checkbox" value="transportMethod" checked> 运输方式</label>
+                            <label><input type="checkbox" value="carrierNumber" checked> 承运单号</label>
+                            <label><input type="checkbox" value="carrierName" checked> 承运商</label>
+                        </div>
+                        <div class="field-group">
+                            <label><input type="checkbox" value="deliveryPersonName" checked> 配送人名字</label>
+                            <label><input type="checkbox" value="plateNumber" checked> 车牌号</label>
+                            <label><input type="checkbox" value="deliveryPersonPhone" checked> 配送人电话</label>
+                            <label><input type="checkbox" value="secondSegmentShipTime" checked> 二段发运时间</label>
+                            <label><input type="checkbox" value="secondSegmentDeliveryTime" checked> 二段运单妥投时间</label>
+                            <label><input type="checkbox" value="receiptApprovalStatus" checked> 签收单审批状态</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-modal secondary" onclick="selectAllDeliveryFields()">全选</button>
+                    <button class="btn-modal secondary" onclick="clearAllDeliveryFields()">清空</button>
+                    <button class="btn-modal secondary" onclick="closeModal('deliveryColumnSelectorModal')">取消</button>
+                    <button class="btn-modal primary" onclick="confirmDeliveryColumns()">确认</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    tableContainer.innerHTML = deliveryPageHTML;
+    
+    // 初始化页面交互
+    initializeDeliveryPage();
+}
+
+// 加载末端派送数据
+async function loadDeliveryData() {
+    try {
+        // 模拟派送数据
+        const deliveryData = [
+            {
+                secondSegmentNumber: 'WB20240701001',
+                secondSegmentStatus: '待发运',
+                customerName: '华为技术有限公司',
+                transportMethod: '快递运输',
+                carrierNumber: 'SF1234567890',
+                carrierName: '顺丰速运',
+                deliveryPersonName: '张三',
+                plateNumber: '京A12345',
+                deliveryPersonPhone: '13800138000',
+                secondSegmentShipTime: '-',
+                secondSegmentDeliveryTime: '-',
+                receiptApprovalStatus: '-'
+            },
+            {
+                secondSegmentNumber: 'WB20240701002',
+                secondSegmentStatus: '已发运',
+                customerName: '小米科技有限公司',
+                transportMethod: '车辆运输',
+                carrierNumber: 'YTO9876543210',
+                carrierName: '圆通速递',
+                deliveryPersonName: '李四',
+                plateNumber: '沪B67890',
+                deliveryPersonPhone: '13900139000',
+                secondSegmentShipTime: '2024-07-01 14:30',
+                secondSegmentDeliveryTime: '-',
+                receiptApprovalStatus: '-'
+            },
+            {
+                secondSegmentNumber: 'WB20240701003',
+                secondSegmentStatus: '已发运',
+                customerName: 'OPPO广东移动通信有限公司',
+                transportMethod: '快递运输',
+                carrierNumber: 'ZTO5432109876',
+                carrierName: '中通快递',
+                deliveryPersonName: '王五',
+                plateNumber: '粤C54321',
+                deliveryPersonPhone: '13700137000',
+                secondSegmentShipTime: '2024-07-02 09:15',
+                secondSegmentDeliveryTime: '-',
+                receiptApprovalStatus: '未通过'
+            },
+            {
+                secondSegmentNumber: 'WB20240701004',
+                secondSegmentStatus: '已妥投',
+                customerName: 'vivo移动通信有限公司',
+                transportMethod: '快递运输',
+                carrierNumber: 'EMS1357924680',
+                carrierName: '中国邮政',
+                deliveryPersonName: '赵六',
+                plateNumber: '苏D98765',
+                deliveryPersonPhone: '13600136000',
+                secondSegmentShipTime: '2024-06-30 16:45',
+                secondSegmentDeliveryTime: '2024-07-03 10:20',
+                receiptApprovalStatus: '已通过'
+            }
+        ];
+        
+        deliveryFullData = deliveryData;
+        renderDeliveryTable(deliveryData);
+    } catch (error) {
+        console.log('加载末端派送数据时出错:', error);
+        showDeliveryEmptyState('加载数据失败');
+    }
+}
+
+// 渲染末端派送表格
+function renderDeliveryTable(data) {
+    if (!data || data.length === 0) {
+        showDeliveryEmptyState('暂无数据');
+        return;
+    }
+
+    // 设置分页信息
+    deliveryTotalItems = data.length;
+    deliveryTotalPages = Math.ceil(deliveryTotalItems / deliveryPageSize);
+    if (deliveryCurrentPage > deliveryTotalPages) {
+        deliveryCurrentPage = 1;
+    }
+
+    // 获取当前页数据
+    const startIndex = (deliveryCurrentPage - 1) * deliveryPageSize;
+    const endIndex = startIndex + deliveryPageSize;
+    deliveryPageData = data.slice(startIndex, endIndex);
+
+    // 渲染表格数据
+    const tableBody = document.getElementById('deliveryTableBody');
+    if (tableBody) {
+        tableBody.innerHTML = deliveryPageData.map(row => `
+            <tr>
+                <td class="fixed-column first" style="width: 120px; min-width: 120px;">${row.secondSegmentNumber}</td>
+                <td>${row.secondSegmentStatus}</td>
+                <td>${row.customerName}</td>
+                <td>${row.transportMethod}</td>
+                <td>${row.carrierNumber}</td>
+                <td>${row.carrierName}</td>
+                <td>${row.deliveryPersonName}</td>
+                <td>${row.plateNumber}</td>
+                <td>${row.deliveryPersonPhone}</td>
+                <td>${row.secondSegmentShipTime}</td>
+                <td>${row.secondSegmentDeliveryTime}</td>
+                <td>${row.receiptApprovalStatus}</td>
+                <td class="fixed-action" style="width: 200px; min-width: 200px;">
+                    ${getDeliveryActionButtons(row)}
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // 更新分页信息
+    updateDeliveryPagination();
+}
+
+// 获取末端派送操作按钮
+function getDeliveryActionButtons(row) {
+    const status = row.secondSegmentStatus;
+    let buttons = [];
+
+    if (status === '待发运') {
+        buttons.push(`<a href="#" class="action-link" onclick="shipDelivery('${row.secondSegmentNumber}')">发运</a>`);
+    } else if (status === '已发运') {
+        buttons.push(`<a href="#" class="action-link" onclick="deliverOrder('${row.secondSegmentNumber}')">妥投</a>`);
+        if (row.receiptApprovalStatus === '未通过') {
+            buttons.pop();
+            buttons.push(`<a href="#" class="action-link" onclick="uploadReceiptForm('${row.secondSegmentNumber}')">上传签收单</a>`);
+        }
+    }
+
+    // 通用按钮
+    buttons.push(`<a href="#" class="action-link" onclick="downloadHandoverForm('${row.secondSegmentNumber}')">下载交接单</a>`);
+    buttons.push(`<a href="#" class="action-link" onclick="viewDeliveryDetail('${row.secondSegmentNumber}')">详情</a>`);
+
+    return buttons.join(' ');
+}
+
+// 渲染末端派送分页按钮
+function renderDeliveryPaginationButtons() {
+    let pagesHTML = '';
+    
+    // 计算显示的页码范围
+    const maxVisiblePages = 7;
+    let startPage = Math.max(1, deliveryCurrentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(deliveryTotalPages, startPage + maxVisiblePages - 1);
+    
+    // 调整起始页
+    if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    // 上一页按钮
+    if (deliveryCurrentPage > 1) {
+        pagesHTML += `<button class="page-btn" onclick="goToDeliveryPage(${deliveryCurrentPage - 1})">上一页</button>`;
+    }
+    
+    // 第一页
+    if (startPage > 1) {
+        pagesHTML += `<button class="page-btn" onclick="goToDeliveryPage(1)">1</button>`;
+        if (startPage > 2) {
+            pagesHTML += `<span class="page-ellipsis">…</span>`;
+        }
+    }
+    
+    // 中间页码
+    for (let i = startPage; i <= endPage; i++) {
+        const activeClass = i === deliveryCurrentPage ? ' active' : '';
+        pagesHTML += `<button class="page-btn${activeClass}" onclick="goToDeliveryPage(${i})">${i}</button>`;
+    }
+    
+    // 最后一页
+    if (endPage < deliveryTotalPages) {
+        if (endPage < deliveryTotalPages - 1) {
+            pagesHTML += `<span class="page-ellipsis">…</span>`;
+        }
+        pagesHTML += `<button class="page-btn" onclick="goToDeliveryPage(${deliveryTotalPages})">${deliveryTotalPages}</button>`;
+    }
+    
+    // 下一页按钮
+    if (deliveryCurrentPage < deliveryTotalPages) {
+        pagesHTML += `<button class="page-btn" onclick="goToDeliveryPage(${deliveryCurrentPage + 1})">下一页</button>`;
+    }
+    
+    return pagesHTML;
+}
+
+// 更新末端派送分页
+function updateDeliveryPagination() {
+    // 更新总数显示
+    const totalItemsSpan = document.getElementById('deliveryTotalItems');
+    if (totalItemsSpan) {
+        totalItemsSpan.textContent = deliveryTotalItems;
+    }
+
+    // 更新分页按钮
+    const paginationPages = document.getElementById('deliveryPaginationPages');
+    if (paginationPages) {
+        paginationPages.innerHTML = renderDeliveryPaginationButtons();
+    }
+
+    // 更新跳转输入框
+    const jumpPageInput = document.getElementById('deliveryJumpPageInput');
+    if (jumpPageInput) {
+        jumpPageInput.max = deliveryTotalPages;
+        jumpPageInput.value = deliveryCurrentPage;
+    }
+}
+
+// 显示末端派送空状态
+function showDeliveryEmptyState(message = '暂无数据') {
+    const tableBody = document.getElementById('deliveryTableBody');
+    if (tableBody) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="13" class="empty-state-cell" style="text-align: center; padding: 20px;">
+                    <div class="empty-state">
+                        <p>${message}</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+}
+
+// 初始化末端派送页面交互
+function initializeDeliveryPage() {
+    // 展开/收起搜索条件
+    const expandToggle = document.getElementById('deliveryExpandToggle');
+    const formContent = document.getElementById('deliveryFormContent');
+    
+    if (expandToggle && formContent) {
+        expandToggle.addEventListener('click', function() {
+            const isExpanded = formContent.classList.contains('expanded');
+            formContent.classList.toggle('expanded', !isExpanded);
+            this.textContent = isExpanded ? '展开' : '收起';
+        });
+    }
+    
+    // 加载客户选项
+    loadDeliveryCustomerOptions();
+}
+
+// 显示末端派送字段选择器
+function showDeliveryColumnSelector() {
+    const modal = document.getElementById('deliveryColumnSelectorModal');
+    if (modal) {
+        modal.classList.add('show');
+    }
+}
+
+// 全选末端派送字段
+function selectAllDeliveryFields() {
+    const checkboxes = document.querySelectorAll('#deliveryColumnSelectorModal input[type="checkbox"]:not([disabled])');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = true;
+    });
+}
+
+// 清空末端派送字段选择
+function clearAllDeliveryFields() {
+    const checkboxes = document.querySelectorAll('#deliveryColumnSelectorModal input[type="checkbox"]:not([disabled])');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+}
+
+// 确认末端派送字段显示
+function confirmDeliveryColumns() {
+    const selectedFields = [];
+    const checkboxes = document.querySelectorAll('#deliveryColumnSelectorModal input[type="checkbox"]:checked');
+    
+    checkboxes.forEach(checkbox => {
+        selectedFields.push(checkbox.value);
+    });
+    
+    console.log('选择的字段:', selectedFields);
+    // 这里可以添加隐藏/显示列的逻辑
+    
+    closeModal('deliveryColumnSelectorModal');
+}
+
+// 加载末端派送页面的客户选项
+async function loadDeliveryCustomerOptions() {
+    const customerSelect = document.getElementById('deliveryCustomerName');
+    if (!customerSelect) return;
+    
+    // 模拟客户数据
+    const customers = [
+        '华为技术有限公司',
+        '小米科技有限公司',
+        'OPPO广东移动通信有限公司',
+        'vivo移动通信有限公司',
+        '联想集团有限公司',
+        '海尔集团公司',
+        '美的集团股份有限公司',
+        '格力电器股份有限公司'
+    ];
+    
+    customers.forEach(customer => {
+        const option = document.createElement('option');
+        option.value = customer;
+        option.textContent = customer;
+        customerSelect.appendChild(option);
+    });
+}
+
+// 重置末端派送搜索表单
+function resetDeliverySearchForm() {
+    const form = document.querySelector('.order-search-container');
+    if (form) {
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            if (input.type === 'date' || input.tagName === 'INPUT') {
+                input.value = '';
+            } else if (input.tagName === 'SELECT') {
+                input.selectedIndex = 0;
+            } else if (input.tagName === 'TEXTAREA') {
+                input.value = '';
+            }
+        });
+    }
+}
+
+// 查询末端派送列表
+function searchDeliveryList() {
+    console.log('执行末端派送列表查询...');
+    // 这里可以添加具体的查询逻辑
+}
+
+// 导出签收单
+function exportReceiptForm() {
+    const modal = document.getElementById('deliveryExportModal');
+    if (modal) {
+        modal.classList.add('show');
+    }
+}
+
+// 发运操作
+function shipDelivery(trackingNumber) {
+    console.log('发运操作:', trackingNumber);
+    // 这里可以添加发运的具体逻辑
+}
+
+// 妥投操作
+function deliverOrder(trackingNumber) {
+    console.log('妥投操作:', trackingNumber);
+    // 这里可以添加妥投的具体逻辑
+}
+
+// 上传签收单
+function uploadReceiptForm(trackingNumber) {
+    console.log('上传签收单:', trackingNumber);
+    // 这里可以添加上传签收单的具体逻辑
+}
+
+// 下载交接单
+function downloadHandoverForm(trackingNumber) {
+    console.log('下载交接单:', trackingNumber);
+    // 这里可以添加下载交接单的具体逻辑
+}
+
+// 查看末端派送详情
+function viewDeliveryDetail(trackingNumber) {
+    console.log('查看详情:', trackingNumber);
+    // 这里可以添加查看详情的具体逻辑
+}
+
+// 跳转到指定页面（末端派送）
+function goToDeliveryPage(page) {
+    if (page < 1 || page > deliveryTotalPages) return;
+    
+    deliveryCurrentPage = page;
+    renderDeliveryTable(deliveryFullData);
+}
+
+// 改变每页显示数量（末端派送）
+function changeDeliveryPageSize() {
+    const pageSizeSelect = document.getElementById('deliveryPageSizeSelect');
+    if (pageSizeSelect) {
+        deliveryPageSize = parseInt(pageSizeSelect.value);
+        deliveryCurrentPage = 1; // 重置到第一页
+        renderDeliveryTable(deliveryFullData);
+    }
+}
+
+// 跳转到指定页面（末端派送）
+function jumpToDeliveryPage() {
+    const jumpPageInput = document.getElementById('deliveryJumpPageInput');
+    if (jumpPageInput) {
+        const page = parseInt(jumpPageInput.value);
+        if (page >= 1 && page <= deliveryTotalPages) {
+            goToDeliveryPage(page);
+        }
+    }
+}
+
+// 关闭模态框
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('show');
+    }
 }
