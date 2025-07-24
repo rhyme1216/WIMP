@@ -247,8 +247,7 @@ function navigateToPage(pageName) {
     if (pageName === '履约异常列表') {
         renderExceptionListPage();
     } else if (pageName === '订单列表') {
-        // 订单列表已禁用，显示提示信息
-        renderExceptionListPage();
+        renderOrderListPage();
     } else if (pageName === '泰国订单列表') {
         renderCountryOrderListPage('泰国');
     } else if (pageName === '越南订单列表') {
@@ -1360,54 +1359,63 @@ ${ORDER_STATUS_OPTIONS_HTML}
                 </div>
                 <div class="modal-body">
                     <div class="export-fields-container">
-                        <div class="field-group">
-                            <label><input type="checkbox" value="orderNumber" checked> 订单编号</label>
-                            <label><input type="checkbox" value="parentOrderNumber" checked> 父单编号</label>
-                            <label><input type="checkbox" value="orderSource" checked> 订单来源</label>
-                            <label><input type="checkbox" value="thirdPartyNumber" checked> 三方单号</label>
-                            <label><input type="checkbox" value="customerPO" checked> 客户PO号</label>
-                            <label><input type="checkbox" value="domesticOrderNumber" checked> 内贸订单号</label>
-                            <label><input type="checkbox" value="purchaseOrderNumber" checked> 采购单号</label>
-                            <label><input type="checkbox" value="businessMode" checked> 业务模式</label>
-                            <label><input type="checkbox" value="orderStatus" checked> 订单状态</label>
+                        <!-- 固定字段 -->
+                        <div class="field-section">
+                            <h4 class="field-section-title">固定字段（必选）</h4>
+                            <div class="field-group fixed-fields">
+                                <label><input type="checkbox" value="orderNumber" checked disabled> 订单编号</label>
+                                <label><input type="checkbox" value="orderSource" checked disabled> 订单来源</label>
+                                <label><input type="checkbox" value="parentOrderNumber" checked disabled> 父单编号</label>
+                                <label><input type="checkbox" value="customerPO" checked disabled> 客户PO号</label>
+                                <label><input type="checkbox" value="purchaseOrderNumber" checked disabled> 采购单号</label>
+                                <label><input type="checkbox" value="businessMode" checked disabled> 业务模式</label>
+                                <label><input type="checkbox" value="orderStatus" checked disabled> 订单状态</label>
+                                <label><input type="checkbox" value="contractNumber" checked disabled> 合同号</label>
+                                <label><input type="checkbox" value="customerName" checked disabled> 客户名称</label>
+                                <label><input type="checkbox" value="currency" checked disabled> 币种</label>
+                                <label><input type="checkbox" value="orderAmount" checked disabled> 订单金额</label>
+                                <label><input type="checkbox" value="orderTime" checked disabled> 下单时间</label>
+                                <label><input type="checkbox" value="customerApprovalTime" checked disabled> 客户审核时间</label>
+                                <label><input type="checkbox" value="promisedDeliveryTime" checked disabled> 承诺送达时间</label>
+                                <label><input type="checkbox" value="plannedDeliveryTime" checked disabled> 计划妥投时间</label>
+                                <label><input type="checkbox" value="currentNode" checked disabled> 当前节点</label>
+                            </div>
                         </div>
-                        <div class="field-group">
-                            <label><input type="checkbox" value="orderAccount" checked> 下单账号</label>
-                            <label><input type="checkbox" value="contractNumber" checked> 合同号</label>
-                            <label><input type="checkbox" value="customerName" checked> 客户名称</label>
-                            <label><input type="checkbox" value="currency" checked> 币种</label>
-                            <label><input type="checkbox" value="orderAmount" checked> 订单金额</label>
-                            <label><input type="checkbox" value="orderTime" checked> 下单时间</label>
-                            <label><input type="checkbox" value="customerApprovalTime" checked> 客户审核完成时间</label>
-                            <label><input type="checkbox" value="paymentTime" checked> 付款时间</label>
-                            <label><input type="checkbox" value="orderConfirmTime" checked> 订单确认时间</label>
-                        </div>
-                        <div class="field-group">
-                            <label><input type="checkbox" value="stockWarehouseName" checked> 备货仓名称</label>
-                            <label><input type="checkbox" value="firstSegmentNumber" checked> 一段运单号</label>
-                            <label><input type="checkbox" value="plannedShipTime" checked> 计划发货时间</label>
-                            <label><input type="checkbox" value="shipTime" checked> 发货时间</label>
-                            <label><input type="checkbox" value="consolidationInTime" checked> 集运中心入仓时间</label>
-                            <label><input type="checkbox" value="consolidationOutTime" checked> 集运中心发货时间</label>
-                            <label><input type="checkbox" value="enterpriseName" checked> 企配名称</label>
-                            <label><input type="checkbox" value="secondSegmentNumber" checked> 二段运单号</label>
-                            <label><input type="checkbox" value="enterpriseReceiveTime" checked> 企配收货时间</label>
-                        </div>
-                        <div class="field-group">
-                            <label><input type="checkbox" value="enterpriseShipTime" checked> 企配发货时间</label>
-                            <label><input type="checkbox" value="actualDeliveryTime" checked> 实物妥投时间</label>
-                            <label><input type="checkbox" value="promisedDeliveryTime" checked> 承诺送达时间</label>
-                            <label><input type="checkbox" value="plannedDeliveryTime" checked> 计划妥投时间</label>
-                            <label><input type="checkbox" value="signStatus" checked> 签单状态</label>
-                            <label><input type="checkbox" value="systemDeliveryTime" checked> 系统妥投时间</label>
-                            <label><input type="checkbox" value="completeTime" checked> 完成时间</label>
-                            <label><input type="checkbox" value="holdStatus" checked> hold单状态</label>
+                        
+                        <!-- 可选字段 -->
+                        <div class="field-section">
+                            <h4 class="field-section-title">可选字段</h4>
+                            <div class="field-group optional-fields">
+                                <label><input type="checkbox" value="thirdPartyNumber"> 三方单号</label>
+                                <label><input type="checkbox" value="orderAccount"> 下单账号</label>
+                                <label><input type="checkbox" value="paymentTime"> 付款时间</label>
+                                <label><input type="checkbox" value="domesticOrderNumber"> 内贸订单号</label>
+                                <label><input type="checkbox" value="orderConfirmTime"> 订单确认时间</label>
+                                <label><input type="checkbox" value="supplierName"> 供应商名称</label>
+                                <label><input type="checkbox" value="stockWarehouseName"> 备货仓名称</label>
+                                <label><input type="checkbox" value="promisedShipTime"> 承诺发货时间</label>
+                                <label><input type="checkbox" value="shipTime"> 订单发货时间</label>
+                                <label><input type="checkbox" value="consolidationCenterName"> 集运中心名称</label>
+                                <label><input type="checkbox" value="consolidationInTime"> 集运中心入仓时间</label>
+                                <label><input type="checkbox" value="consolidationOutTime"> 集运中心发货时间</label>
+                                <label><input type="checkbox" value="firstSegmentNumber"> 一段运单号</label>
+                                <label><input type="checkbox" value="enterpriseName"> 企配名称</label>
+                                <label><input type="checkbox" value="enterpriseReceiveTime"> 企配收货时间</label>
+                                <label><input type="checkbox" value="enterpriseShipTime"> 企配发货时间</label>
+                                <label><input type="checkbox" value="outboundNumber"> 出库单号</label>
+                                <label><input type="checkbox" value="secondSegmentNumber"> 二段运单号</label>
+                                <label><input type="checkbox" value="actualDeliveryTime"> 实物妥投时间</label>
+                                <label><input type="checkbox" value="signStatus"> 签单状态</label>
+                                <label><input type="checkbox" value="systemDeliveryTime"> 系统妥投时间</label>
+                                <label><input type="checkbox" value="completeTime"> 完成时间</label>
+                                <label><input type="checkbox" value="holdStatus"> hold单状态</label>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-modal secondary" onclick="selectAllFields()">全选</button>
-                    <button class="btn-modal secondary" onclick="clearAllFields()">清空</button>
+                    <button class="btn-modal secondary" onclick="selectAllOptionalFields()">全选可选字段</button>
+                    <button class="btn-modal secondary" onclick="clearAllOptionalFields()">清空可选字段</button>
                     <button class="btn-modal secondary" onclick="closeModal('exportFieldsModal')">取消</button>
                     <button class="btn-modal primary" onclick="confirmExportFields()">确认导出</button>
                 </div>
@@ -1490,69 +1498,6 @@ ${ORDER_STATUS_OPTIONS_HTML}
                 </div>
                 <div class="modal-footer">
                     <button class="btn-modal primary" onclick="closeModal('orderExportModal')">确认</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 导出字段选择模态框 -->
-        <div class="modal-overlay" id="exportFieldsModal">
-            <div class="modal-content large">
-                <div class="modal-header">
-                    <span class="modal-title">选择导出字段</span>
-                    <button class="modal-close" onclick="closeModal('exportFieldsModal')">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="export-fields-container">
-                        <div class="field-group">
-                            <label><input type="checkbox" value="orderNumber" checked> 订单编号</label>
-                            <label><input type="checkbox" value="parentOrderNumber" checked> 父单编号</label>
-                            <label><input type="checkbox" value="orderSource" checked> 订单来源</label>
-                            <label><input type="checkbox" value="thirdPartyNumber" checked> 三方单号</label>
-                            <label><input type="checkbox" value="customerPO" checked> 客户PO号</label>
-                            <label><input type="checkbox" value="domesticOrderNumber" checked> 内贸订单号</label>
-                            <label><input type="checkbox" value="purchaseOrderNumber" checked> 采购单号</label>
-                            <label><input type="checkbox" value="businessMode" checked> 业务模式</label>
-                            <label><input type="checkbox" value="orderStatus" checked> 订单状态</label>
-                        </div>
-                        <div class="field-group">
-                            <label><input type="checkbox" value="orderAccount" checked> 下单账号</label>
-                            <label><input type="checkbox" value="contractNumber" checked> 合同号</label>
-                            <label><input type="checkbox" value="customerName" checked> 客户名称</label>
-                            <label><input type="checkbox" value="currency" checked> 币种</label>
-                            <label><input type="checkbox" value="orderAmount" checked> 订单金额</label>
-                            <label><input type="checkbox" value="orderTime" checked> 下单时间</label>
-                            <label><input type="checkbox" value="customerApprovalTime" checked> 客户审核完成时间</label>
-                            <label><input type="checkbox" value="paymentTime" checked> 付款时间</label>
-                            <label><input type="checkbox" value="orderConfirmTime" checked> 订单确认时间</label>
-                        </div>
-                        <div class="field-group">
-                            <label><input type="checkbox" value="stockWarehouseName" checked> 备货仓名称</label>
-                            <label><input type="checkbox" value="firstSegmentNumber" checked> 一段运单号</label>
-                            <label><input type="checkbox" value="plannedShipTime" checked> 计划发货时间</label>
-                            <label><input type="checkbox" value="shipTime" checked> 发货时间</label>
-                            <label><input type="checkbox" value="consolidationInTime" checked> 集运中心入仓时间</label>
-                            <label><input type="checkbox" value="consolidationOutTime" checked> 集运中心发货时间</label>
-                            <label><input type="checkbox" value="enterpriseName" checked> 企配名称</label>
-                            <label><input type="checkbox" value="secondSegmentNumber" checked> 二段运单号</label>
-                            <label><input type="checkbox" value="enterpriseReceiveTime" checked> 企配收货时间</label>
-                        </div>
-                        <div class="field-group">
-                            <label><input type="checkbox" value="enterpriseShipTime" checked> 企配发货时间</label>
-                            <label><input type="checkbox" value="actualDeliveryTime" checked> 实物妥投时间</label>
-                            <label><input type="checkbox" value="promisedDeliveryTime" checked> 承诺送达时间</label>
-                            <label><input type="checkbox" value="plannedDeliveryTime" checked> 计划妥投时间</label>
-                            <label><input type="checkbox" value="signStatus" checked> 签单状态</label>
-                            <label><input type="checkbox" value="systemDeliveryTime" checked> 系统妥投时间</label>
-                            <label><input type="checkbox" value="completeTime" checked> 完成时间</label>
-                            <label><input type="checkbox" value="holdStatus" checked> hold单状态</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn-modal secondary" onclick="selectAllFields()">全选</button>
-                    <button class="btn-modal secondary" onclick="clearAllFields()">清空</button>
-                    <button class="btn-modal secondary" onclick="closeModal('exportFieldsModal')">取消</button>
-                    <button class="btn-modal primary" onclick="confirmExportFields()">确认导出</button>
                 </div>
             </div>
         </div>
@@ -2409,6 +2354,21 @@ function selectAllFields() {
 
 function clearAllFields() {
     const checkboxes = document.querySelectorAll('#exportFieldsModal input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+}
+
+// 可选字段操作函数
+function selectAllOptionalFields() {
+    const checkboxes = document.querySelectorAll('#exportFieldsModal .optional-fields input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = true;
+    });
+}
+
+function clearAllOptionalFields() {
+    const checkboxes = document.querySelectorAll('#exportFieldsModal .optional-fields input[type="checkbox"]');
     checkboxes.forEach(checkbox => {
         checkbox.checked = false;
     });
@@ -3624,10 +3584,8 @@ function showDisabledOrderListMessage() {
     const tableContainer = document.getElementById('tableContainer');
     tableContainer.innerHTML = `
         <div class="disabled-page-message">
-            <div class="disabled-icon">🚫</div>
-            <h3>订单列表功能已禁用</h3>
-            <p>原订单列表功能已被拆分为各国家订单列表，请从左侧菜单选择对应国家的订单列表：</p>
             <ul class="country-list">
+                <li><a href="#" onclick="navigateToPage('订单列表')">订单列表</a></li>
                 <li><a href="#" onclick="navigateToPage('泰国订单列表')">泰国订单列表</a></li>
                 <li><a href="#" onclick="navigateToPage('越南订单列表')">越南订单列表</a></li>
                 <li><a href="#" onclick="navigateToPage('马来订单列表')">马来订单列表</a></li>

@@ -687,6 +687,11 @@ body {
     width: 90%;
 }
 
+.modal-content.large {
+    max-width: 800px;
+    width: 95%;
+}
+
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -1698,4 +1703,117 @@ body {
     }
 }
 
+/* 导出字段选择模态框样式 */
+.export-fields-container {
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 10px 0;
+}
 
+.field-section {
+    margin-bottom: 25px;
+}
+
+.field-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.field-section:first-child .field-section-title {
+    color: #059669;
+    border-bottom-color: #059669;
+}
+
+.field-section:last-child .field-section-title {
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
+}
+
+.field-group {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px 12px;
+    padding: 5px 0;
+}
+
+.field-group label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    font-size: 11px;
+}
+
+.field-group label:hover {
+    background-color: #f3f4f6;
+}
+
+.field-group input[type="checkbox"] {
+    margin-right: 6px;
+    cursor: pointer;
+    transform: scale(0.9);
+}
+
+.fixed-fields label {
+    background-color: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #059669;
+}
+
+.fixed-fields input[type="checkbox"]:disabled {
+    opacity: 0.7;
+}
+
+.fixed-fields label:hover {
+    background-color: #ecfdf5;
+}
+
+.optional-fields label {
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+}
+
+.optional-fields label:hover {
+    background-color: #f1f5f9;
+}
+
+.optional-fields input[type="checkbox"]:checked + label {
+    background-color: #dbeafe;
+    border-color: #3b82f6;
+}
+
+/* 导出字段模态框响应式设计 */
+@media (max-width: 768px) {
+    .modal-content.large {
+        max-width: 95%;
+        width: 95%;
+        padding: 15px;
+    }
+    
+    .field-group {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 5px 10px;
+    }
+    
+    .field-group label {
+        font-size: 10px;
+        padding: 3px 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .field-group {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+    
+    .field-section-title {
+        font-size: 12px;
+    }
+}
