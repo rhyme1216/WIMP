@@ -248,6 +248,8 @@ function navigateToPage(pageName) {
         renderExceptionListPage();
     } else if (pageName === '订单列表') {
         renderOrderListPage();
+    } else if (pageName === 'orderDetail') {
+        renderOrderDetailPage();
     } else if (pageName === '泰国订单列表') {
         renderCountryOrderListPage('泰国');
     } else if (pageName === '越南订单列表') {
@@ -2493,7 +2495,17 @@ function updateTableColumns(selectedColumns) {
 
 // 订单相关操作函数
 function viewOrderDetail(orderNo) {
-    alert(`查看订单 ${orderNo} 的详细信息`);
+    // 跳转到订单查询页面
+    navigateToPage('orderDetail');
+    // 预填订单号
+    setTimeout(() => {
+        const orderSearchInput = document.getElementById('orderDetailSearchInput');
+        if (orderSearchInput) {
+            orderSearchInput.value = orderNo;
+            // 自动执行查询
+            searchOrderDetail();
+        }
+    }, 100);
 }
 
 function printOrder(orderNo) {
@@ -4187,4 +4199,479 @@ function showErrorMessage(message) {
 function showSuccessMessage(message) {
     console.log(message);
     alert(message);
+}
+
+// ===== 订单详情页面相关函数 =====
+
+// 渲染订单详情页面
+function renderOrderDetailPage() {
+    // 隐藏默认搜索容器
+    document.querySelector('.search-container').style.display = 'none';
+    
+    // 设置页面标题
+    pageTitle.textContent = '订单查询';
+    
+    const orderDetailHTML = `
+        <!-- 订单查询搜索框 -->
+        <div class="order-detail-search-container">
+            <div class="order-detail-search-form">
+                <div class="search-input-group">
+                    <input type="text" id="orderDetailSearchInput" placeholder="请输入WIMP订单号进行查询" />
+                    <button class="btn-search" onclick="searchOrderDetail()">查询</button>
+                </div>
+                <div class="warning-text">
+                    数据查询仅限工作业务用途，私用将导致解聘并追究法律责任（查询均有日志记录）
+                </div>
+            </div>
+        </div>
+
+        <!-- 订单详情内容区域 -->
+        <div class="order-detail-content" id="orderDetailContent" style="display: none;">
+            <!-- Tab 切换 -->
+            <div class="order-detail-tabs">
+                <div class="tab-item active" onclick="switchOrderDetailTab('orderInfo', this)">订单信息</div>
+                <div class="tab-item" onclick="switchOrderDetailTab('afterSaleInfo', this)">售后信息</div>
+            </div>
+
+            <!-- 订单信息Tab内容 -->
+            <div class="tab-content active" id="orderInfoTab">
+                <!-- 基础信息 -->
+                <div class="info-section">
+                    <h3 class="section-title">基础信息</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>WIMP订单编号：</label>
+                            <span id="wimpOrderNo">ORD20240701001</span>
+                        </div>
+                        <div class="info-item">
+                            <label>拆分状态：</label>
+                            <span id="splitStatus">未拆分 <a href="#" class="link-text">(查看订单树)</a></span>
+                        </div>
+                        <div class="info-item">
+                            <label>采购单号：</label>
+                            <span id="purchaseNo">PUR001</span>
+                        </div>
+                        <div class="info-item">
+                            <label>订单类型：</label>
+                            <span id="orderType">跨境直发</span>
+                        </div>
+                        <div class="info-item">
+                            <label>订单状态：</label>
+                            <span id="orderStatus">待发货</span>
+                        </div>
+                        <div class="info-item">
+                            <label>WIMP父单号：</label>
+                            <span id="parentOrderNo">PARENT001</span>
+                        </div>
+                        <div class="info-item">
+                            <label>客户采购单号：</label>
+                            <span id="customerPurchaseNo">PO2024001</span>
+                        </div>
+                        <div class="info-item">
+                            <label>内贸段订单号：</label>
+                            <span id="domesticOrderNo">DOM001</span>
+                        </div>
+                        <div class="info-item">
+                            <label>国家/地区：</label>
+                            <span id="countryRegion">泰国</span>
+                        </div>
+                        <div class="info-item">
+                            <label>SAP单号：</label>
+                            <span id="sapOrderNo">SAP001</span>
+                        </div>
+                        <div class="info-item">
+                            <label>hold单状态：</label>
+                            <span id="holdStatus">否</span>
+                        </div>
+                        <div class="info-item">
+                            <label>订单来源：</label>
+                            <span id="orderSource">WIOP</span>
+                        </div>
+                        <div class="info-item">
+                            <label>签单审批状态：</label>
+                            <span id="signApprovalStatus">已通过</span>
+                        </div>
+                        <div class="info-item">
+                            <label>子客户下单标识：</label>
+                            <span id="subCustomerFlag">否</span>
+                        </div>
+                        <div class="info-item">
+                            <label>运费金额：</label>
+                            <span id="shippingFee">150.00 USD</span>
+                        </div>
+                        <div class="info-item">
+                            <label>服务费：</label>
+                            <span id="serviceFee">50.00 USD</span>
+                        </div>
+                        <div class="info-item">
+                            <label>履约类型：</label>
+                            <span id="fulfillmentType">标准履约</span>
+                        </div>
+                        <div class="info-item">
+                            <label>支付方式：</label>
+                            <span id="paymentMethod">账期支付</span>
+                        </div>
+                        <div class="info-item">
+                            <label>订单生成时间：</label>
+                            <span id="orderCreateTime">2024-07-01 10:30:00</span>
+                        </div>
+                        <div class="info-item">
+                            <label>供应商采购单号：</label>
+                            <span id="supplierPurchaseNo">SUP001</span>
+                        </div>
+                        <div class="info-item">
+                            <label>是否报关：</label>
+                            <span id="isCustoms">是</span>
+                        </div>
+                        <div class="info-item">
+                            <label>二段运单号：</label>
+                            <span id="secondSegmentNo">WB002</span>
+                        </div>
+                        <div class="info-item">
+                            <label>一段运单入仓时间：</label>
+                            <span id="firstSegmentInTime">2024-07-04 08:00:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 商品信息 -->
+                <div class="info-section">
+                    <h3 class="section-title">商品信息 <a href="#" class="link-text">商品订单快照</a></h3>
+                    <div class="product-table-container">
+                        <table class="product-table">
+                            <thead>
+                                <tr>
+                                    <th>商品图片</th>
+                                    <th>商品MKU</th>
+                                    <th>商品名称</th>
+                                    <th>货源国</th>
+                                    <th>采销ERP</th>
+                                    <th>币种</th>
+                                    <th>对客价格</th>
+                                    <th>数量</th>
+                                    <th>含税总计</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><img src="https://via.placeholder.com/50x50" alt="商品图片" class="product-image"></td>
+                                    <td>MKU001</td>
+                                    <td>华为智能手机</td>
+                                    <td>中国</td>
+                                    <td>ERP001</td>
+                                    <td>USD</td>
+                                    <td>299.99</td>
+                                    <td>50</td>
+                                    <td>14,999.50</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="product-summary">
+                            <div class="summary-item">
+                                <label>商品总数：</label>
+                                <span>1种(共50件)</span>
+                            </div>
+                            <div class="summary-item">
+                                <label>订单未税总额：</label>
+                                <span>14,999.50 USD</span>
+                            </div>
+                            <div class="summary-item">
+                                <label>订单税额：</label>
+                                <span>0.00 USD</span>
+                            </div>
+                            <div class="summary-item">
+                                <label>运费：</label>
+                                <span>150.00 USD</span>
+                            </div>
+                            <div class="summary-item">
+                                <label>服务费：</label>
+                                <span>50.00 USD</span>
+                            </div>
+                            <div class="summary-item">
+                                <label>订单含税总额：</label>
+                                <span>15,199.50 USD</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 客户信息 -->
+                <div class="info-section">
+                    <h3 class="section-title">客户信息</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>客户名称：</label>
+                            <span id="customerName">华为技术有限公司</span>
+                        </div>
+                        <div class="info-item">
+                            <label>客户简码：</label>
+                            <span id="customerCode">hRvDgUX263Y2FuWbVzB8</span>
+                        </div>
+                        <div class="info-item">
+                            <label>客户PO号：</label>
+                            <span id="customerPO">PO2024001</span>
+                        </div>
+                        <div class="info-item">
+                            <label>贸易模式：</label>
+                            <span id="tradeMode">一般贸易</span>
+                        </div>
+                        <div class="info-item">
+                            <label>公司类型：</label>
+                            <span id="companyType">EPE</span>
+                        </div>
+                        <div class="info-item">
+                            <label>下单账号：</label>
+                            <span id="orderAccount">admin001</span>
+                        </div>
+                        <div class="info-item">
+                            <label>自定义备注：</label>
+                            <span id="customRemark">无</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 收货与配送信息 -->
+                <div class="info-section">
+                    <h3 class="section-title">收货与配送信息</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>下单人姓名：</label>
+                            <span id="orderPersonName">张三</span>
+                        </div>
+                        <div class="info-item">
+                            <label>下单部门：</label>
+                            <span id="orderDepartment">采购部</span>
+                        </div>
+                        <div class="info-item">
+                            <label>下单人联系方式：</label>
+                            <span id="orderPersonContact">13800138000</span>
+                        </div>
+                        <div class="info-item">
+                            <label>收货人姓名：</label>
+                            <span id="receiverName">李四</span>
+                        </div>
+                        <div class="info-item">
+                            <label>收货人手机号：</label>
+                            <span id="receiverMobile">+66 12345678</span>
+                        </div>
+                        <div class="info-item">
+                            <label>收货人电话：</label>
+                            <span id="receiverPhone">+66 87654321</span>
+                        </div>
+                        <div class="info-item">
+                            <label>收货人邮箱：</label>
+                            <span id="receiverEmail">receiver@example.com</span>
+                        </div>
+                        <div class="info-item">
+                            <label>收货地址：</label>
+                            <span id="receiverAddress">泰国曼谷</span>
+                        </div>
+                        <div class="info-item">
+                            <label>收货详细地址：</label>
+                            <span id="receiverDetailAddress">曼谷市中心商业区123号</span>
+                        </div>
+                        <div class="info-item">
+                            <label>预计发货天数：</label>
+                            <span id="estimatedShipDays">3天</span>
+                        </div>
+                        <div class="info-item">
+                            <label>承诺送达时间：</label>
+                            <span id="promisedDeliveryTime">2024-07-10 18:00:00</span>
+                        </div>
+                        <div class="info-item">
+                            <label>出库单号：</label>
+                            <span id="outboundNo">OUT001</span>
+                        </div>
+                        <div class="info-item">
+                            <label>企配中心：</label>
+                            <span id="enterpriseCenter">北京企配仓1号</span>
+                        </div>
+                        <div class="info-item">
+                            <label>备货仓：</label>
+                            <span id="stockWarehouse">泰国中心仓1号（林查班）</span>
+                        </div>
+                        <div class="info-item">
+                            <label>下单人配送要求：</label>
+                            <span id="deliveryRequirement">工作日配送</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 关联信息 -->
+                <div class="info-section">
+                    <h3 class="section-title">关联信息</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>iop单号：</label>
+                            <span id="iopOrderNo">IOP001</span>
+                        </div>
+                        <div class="info-item">
+                            <label>账期单号：</label>
+                            <span id="creditOrderNo">CR001</span>
+                        </div>
+                        <div class="info-item">
+                            <label>账期单类型：</label>
+                            <span id="creditOrderType">月结</span>
+                        </div>
+                        <div class="info-item">
+                            <label>贸易主体：</label>
+                            <span id="tradeEntity">京东国际</span>
+                        </div>
+                        <div class="info-item">
+                            <label>预付款比例：</label>
+                            <span id="prepaymentRatio">30%</span>
+                        </div>
+                        <div class="info-item">
+                            <label>尾款账期：</label>
+                            <span id="finalPaymentPeriod">30天</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 订单跟踪 -->
+                <div class="info-section">
+                    <h3 class="section-title">订单跟踪</h3>
+                    <div class="tracking-table-container">
+                        <table class="tracking-table">
+                            <thead>
+                                <tr>
+                                    <th>记录</th>
+                                    <th>操作人</th>
+                                    <th>时间</th>
+                                    <th>文件记录</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>下单</td>
+                                    <td>BR-BYD采购账号</td>
+                                    <td>2025-02-13 14:58:37</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>订单审批</td>
+                                    <td>BR-BYD采购账号</td>
+                                    <td>2025-02-13 14:59:17</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>订单确认</td>
+                                    <td>BR-BYD采购账号</td>
+                                    <td>2025-02-13 15:01:00</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>订单发货</td>
+                                    <td>BR-BYD采购账号</td>
+                                    <td>2025-02-13 15:15:00</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>集运中心收货</td>
+                                    <td>-</td>
+                                    <td>2025-02-13 15:39:19</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>集运中心发货</td>
+                                    <td>-</td>
+                                    <td>2025-02-13 15:39:19</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>企配中心收货</td>
+                                    <td>-</td>
+                                    <td>2025-02-13 16:02:35</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>企配中心发货</td>
+                                    <td>-</td>
+                                    <td>2025-02-13 16:10:15</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>订单妥投</td>
+                                    <td>lizimeng16</td>
+                                    <td>2025-02-13 16:10:32</td>
+                                    <td><a href="#" class="link-text">文件1</a></td>
+                                </tr>
+                                <tr>
+                                    <td>签单上传</td>
+                                    <td>lizimeng16</td>
+                                    <td>2025-02-13 16:10:32</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>签单审批通过</td>
+                                    <td>lizimeng16</td>
+                                    <td>2025-02-13 16:11:10</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>订单完成</td>
+                                    <td>BR-BYD采购账号</td>
+                                    <td>2025-02-13 16:12:54</td>
+                                    <td>-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 售后信息Tab内容 -->
+            <div class="tab-content" id="afterSaleInfoTab" style="display: none;">
+                <div class="info-section">
+                    <h3 class="section-title">售后信息</h3>
+                    <div class="empty-state">
+                        <p>暂无售后信息</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    tableContainer.innerHTML = orderDetailHTML;
+}
+
+// 搜索订单详情
+function searchOrderDetail() {
+    const orderNo = document.getElementById('orderDetailSearchInput').value.trim();
+    if (!orderNo) {
+        alert('请输入订单号');
+        return;
+    }
+    
+    // 显示订单详情内容
+    const orderDetailContent = document.getElementById('orderDetailContent');
+    if (orderDetailContent) {
+        orderDetailContent.style.display = 'block';
+        // 这里可以根据订单号加载实际数据
+        console.log('查询订单:', orderNo);
+    }
+}
+
+// 切换订单详情Tab
+function switchOrderDetailTab(tabName, element) {
+    // 移除所有tab的active状态
+    document.querySelectorAll('.order-detail-tabs .tab-item').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // 添加当前tab的active状态
+    element.classList.add('active');
+    
+    // 隐藏所有tab内容
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.style.display = 'none';
+        content.classList.remove('active');
+    });
+    
+    // 显示对应的tab内容
+    const targetTab = document.getElementById(tabName + 'Tab');
+    if (targetTab) {
+        targetTab.style.display = 'block';
+        targetTab.classList.add('active');
+    }
 }
