@@ -1083,7 +1083,6 @@ ${ORDER_STATUS_OPTIONS_HTML}
                             <!-- 客户选项将通过loadCustomerOptions()函数动态加载 -->
                         </select>
                     </div>
-                    
                     <!-- 第三行 -->
                     <div class="order-form-group">
                         <label>客户企业类型</label>
@@ -1117,19 +1116,10 @@ ${ORDER_STATUS_OPTIONS_HTML}
                             <option value="export_specialist">export_specialist</option>
                         </select>
                     </div>
-                    
                     <!-- 第四行 -->
                     <div class="order-form-group">
                         <label>客户PO号</label>
                         <input type="text" id="customerPO" placeholder="请输入">
-                    </div>
-                    <div class="order-form-group">
-                        <label>下单日期</label>
-                        <div class="date-range-input">
-                            <input type="date" id="orderDateStart" placeholder="请选择">
-                            <span class="separator">至</span>
-                            <input type="date" id="orderDateEnd" placeholder="请选择">
-                        </div>
                     </div>
                     <div class="order-form-group">
                         <label>企配仓名称</label>
@@ -1145,7 +1135,6 @@ ${ORDER_STATUS_OPTIONS_HTML}
                             <!-- 备货仓选项将通过loadStockWarehouseOptions()函数动态加载 -->
                         </select>
                     </div>
-                    
                     <!-- 第五行 -->
                     <div class="order-form-group">
                         <label>下发备货仓状态</label>
@@ -1156,26 +1145,9 @@ ${ORDER_STATUS_OPTIONS_HTML}
                         </select>
                     </div>
                     <div class="order-form-group">
-                        <label>企配收货时间</label>
-                        <div class="date-range-input">
-                            <input type="date" id="enterpriseReceiveStart" placeholder="请选择">
-                            <span class="separator">至</span>
-                            <input type="date" id="enterpriseReceiveEnd" placeholder="请选择">
-                        </div>
-                    </div>
-                    <div class="order-form-group">
                         <label>出库单号</label>
                         <input type="text" id="outboundNumber" placeholder="请输入">
                     </div>
-                    <div class="order-form-group">
-                        <label>一段入仓时间</label>
-                        <div class="date-range-input">
-                            <input type="date" id="firstSegmentInStart" placeholder="请选择">
-                            <span class="separator">至</span>
-                            <input type="date" id="firstSegmentInEnd" placeholder="请选择">
-                        </div>
-                    </div>
-                    
                     <!-- 第六行 -->
                     <div class="order-form-group">
                         <label>是否生成二段</label>
@@ -1202,6 +1174,31 @@ ${ORDER_STATUS_OPTIONS_HTML}
                             <option value="否">否</option>
                         </select>
                     </div>
+                    <div class="order-form-group">
+                        <label>下单日期</label>
+                        <div class="date-range-input">
+                            <input type="date" id="orderDateStart" placeholder="请选择">
+                            <span class="separator">至</span>
+                            <input type="date" id="orderDateEnd" placeholder="请选择">
+                        </div>
+                    </div>
+                    <div class="order-form-group">
+                        <label>一段入仓时间</label>
+                        <div class="date-range-input">
+                            <input type="date" id="firstSegmentInStart" placeholder="请选择">
+                            <span class="separator">至</span>
+                            <input type="date" id="firstSegmentInEnd" placeholder="请选择">
+                        </div>
+                    </div>
+                    <div class="order-form-group">
+                        <label>企配收货时间</label>
+                        <div class="date-range-input">
+                            <input type="date" id="enterpriseReceiveStart" placeholder="请选择">
+                            <span class="separator">至</span>
+                            <input type="date" id="enterpriseReceiveEnd" placeholder="请选择">
+                        </div>
+                    </div>
+
                     <div class="order-form-group"></div> <!-- 占位符保持对齐 -->
                 </div>
                 <div class="order-actions">
@@ -1896,17 +1893,14 @@ function batchDelivery() {
         return;
     }
     
-    if (selectedOrders.length === 1) {
-        alert('合单派送需要选择至少2个订单');
-        return;
-    }
-    
-    const confirmMessage = `确定要对以下 ${selectedOrders.length} 个订单进行合单派送吗？\n\n订单编号：\n${selectedOrders.join('\n')}`;
+    // 支持单个订单的派送，不再限制最少2个订单
+    const orderText = selectedOrders.length === 1 ? '订单' : '订单';
+    const confirmMessage = `确定要对以下 ${selectedOrders.length} 个${orderText}进行合单派送吗？\n\n订单编号：\n${selectedOrders.join('\n')}`;
     
     if (confirm(confirmMessage)) {
         console.log('执行合单派送:', selectedOrders);
         // 这里可以添加实际的合单派送逻辑
-        alert(`已成功提交 ${selectedOrders.length} 个订单的合单派送请求`);
+        alert(`已成功提交 ${selectedOrders.length} 个${orderText}的合单派送请求`);
         
         // 清除选择状态
         document.getElementById('selectAll').checked = false;
@@ -4143,16 +4137,13 @@ function batchCountryDelivery(country) {
         return;
     }
     
-    if (selectedOrders.length === 1) {
-        alert('合单派送需要选择至少2个订单');
-        return;
-    }
-    
-    const confirmMessage = `确定要对以下 ${selectedOrders.length} 个${country}订单进行合单派送吗？\n\n订单编号：\n${selectedOrders.join('\n')}`;
+    // 支持单个订单的派送，不再限制最少2个订单
+    const orderText = selectedOrders.length === 1 ? '订单' : '订单';
+    const confirmMessage = `确定要对以下 ${selectedOrders.length} 个${country}${orderText}进行合单派送吗？\n\n订单编号：\n${selectedOrders.join('\n')}`;
     
     if (confirm(confirmMessage)) {
         console.log(`执行${country}订单合单派送:`, selectedOrders);
-        alert(`已成功提交 ${selectedOrders.length} 个${country}订单的合单派送请求`);
+        alert(`已成功提交 ${selectedOrders.length} 个${country}${orderText}的合单派送请求`);
         
         // 清除选择状态
         const selectAllCheckbox = document.getElementById('countrySelectAll');
@@ -4336,7 +4327,7 @@ function renderOrderDetailPage() {
 
                 <!-- 商品信息 -->
                 <div class="info-section">
-                    <h3 class="section-title">商品信息 <a href="#" class="link-text">商品订单快照</a></h3>
+                    <h3 class="section-title">商品信息 <a href="#" class="link-text">(商品订单快照)</a></h3>
                     <div class="product-table-container">
                         <table class="product-table">
                             <thead>
