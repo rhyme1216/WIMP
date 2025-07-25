@@ -4784,9 +4784,9 @@ function showNewFeaturePrompt(featureName, type) {
     let title, message;
     if (type === 'module') {
         title = `${featureName}本次履约控制塔二期页面！`;
-        message = `该模块下有多个新功能已经上线，点击展开菜单查看具体功能。这些新功能将帮助您更好地管理业务流程。`;
+        message = `即将上线的页面原型效果！欢迎体验并提供宝贵建议！（设计稿仅供参考，有疑问请联系紫萌：lizimeng16）`;
     } else {
-        title = `${featureName}本次履约控制塔二期页面！`;
+        title = `${featureName}（履约控制塔二期页面）！`;
         message = `即将上线的页面原型效果！欢迎体验并提供宝贵建议！（设计稿仅供参考，有疑问请联系紫萌：lizimeng16）`;
     }
     
