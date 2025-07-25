@@ -172,6 +172,7 @@ function initializeApp() {
     setupMenuToggle();
     setupMenuNavigation();
     setupSearch();
+    initializeNewFeatureBadges();
 }
 
 // 设置菜单切换功能
@@ -4666,3 +4667,234 @@ function switchOrderDetailTab(tabName, element) {
         targetTab.classList.add('active');
     }
 }
+
+// ===== 新功能标识管理系统 =====
+
+// 新功能配置
+const NEW_FEATURES = {
+    // 订单管理模块新功能
+    '订单列表': { module: '订单管理', isNew: true },
+    '泰国订单列表': { module: '订单管理', isNew: true },
+    '越南订单列表': { module: '订单管理', isNew: true },
+    '马来订单列表': { module: '订单管理', isNew: true },
+    '印度尼西亚订单列表': { module: '订单管理', isNew: true },
+    '巴西订单列表': { module: '订单管理', isNew: true },
+    '匈牙利订单列表': { module: '订单管理', isNew: true },
+    '香港订单列表': { module: '订单管理', isNew: true },
+    // 履约管理模块新功能
+    '末端派送列表': { module: '履约管理', isNew: true },
+    '履约异常列表': { module: '履约管理', isNew: true }
+};
+
+// 新功能显示期限（30天）
+const NEW_FEATURE_DURATION = 30 * 24 * 60 * 60 * 1000; // 30天毫秒数
+
+// 初始化新功能标识系统
+function initializeNewFeatureBadges() {
+    // 检查并显示新功能标识
+    showNewFeatureBadges();
+    
+    // 设置菜单点击提示
+    setupMenuClickPrompts();
+    
+    // 定期检查是否需要隐藏过期的新功能标识
+    setInterval(checkAndHideExpiredFeatures, 24 * 60 * 60 * 1000); // 每天检查一次
+}
+
+// 显示新功能标识
+function showNewFeatureBadges() {
+    const currentTime = Date.now();
+    const hideTime = localStorage.getItem('hideNewFeatureBadges');
+    
+    // 如果用户手动隐藏了标识，则不显示
+    if (hideTime && currentTime < parseInt(hideTime)) {
+        hideAllNewFeatureBadges();
+        return;
+    }
+    
+    // 检查功能上线时间
+    const featureReleaseTime = getFeatureReleaseTime();
+    if (currentTime - featureReleaseTime > NEW_FEATURE_DURATION) {
+        hideAllNewFeatureBadges();
+        return;
+    }
+    
+    // 显示所有新功能标识
+    document.querySelectorAll('.new-feature-badge').forEach(badge => {
+        badge.style.display = 'inline-block';
+    });
+    
+    document.querySelectorAll('.has-new-features').forEach(menuItem => {
+        menuItem.classList.add('has-new-features');
+    });
+}
+
+// 隐藏所有新功能标识
+function hideAllNewFeatureBadges() {
+    document.querySelectorAll('.new-feature-badge').forEach(badge => {
+        badge.style.display = 'none';
+    });
+    
+    document.querySelectorAll('.has-new-features').forEach(menuItem => {
+        menuItem.classList.remove('has-new-features');
+    });
+}
+
+// 设置菜单点击提示
+function setupMenuClickPrompts() {
+    // 监听有新功能的主菜单点击
+    document.querySelectorAll('.has-new-features > .menu-link').forEach(menuLink => {
+        menuLink.addEventListener('click', function(e) {
+            const menuText = this.querySelector('span').textContent;
+            if (shouldShowPrompt(menuText)) {
+                showNewFeaturePrompt(menuText, 'module');
+            }
+        });
+    });
+    
+    // 监听新功能子菜单点击
+    document.querySelectorAll('.submenu-link').forEach(submenuLink => {
+        submenuLink.addEventListener('click', function(e) {
+            const menuText = this.textContent.replace(/\s*新\s*$/, '').trim();
+            if (NEW_FEATURES[menuText] && NEW_FEATURES[menuText].isNew) {
+                if (shouldShowPrompt(menuText)) {
+                    showNewFeaturePrompt(menuText, 'feature');
+                }
+            }
+        });
+    });
+}
+
+// 显示新功能提示弹窗
+function showNewFeaturePrompt(featureName, type) {
+    // 检查是否已经显示过提示
+    const promptKey = `newFeaturePrompt_${featureName}`;
+    if (localStorage.getItem(promptKey)) {
+        return;
+    }
+    
+    // 创建遮罩层
+    const overlay = document.createElement('div');
+    overlay.className = 'new-feature-prompt-overlay';
+    
+    // 创建提示框
+    const prompt = document.createElement('div');
+    prompt.className = 'new-feature-prompt';
+    
+    let title, message;
+    if (type === 'module') {
+        title = `${featureName}本次履约控制塔二期页面！`;
+        message = `该模块下有多个新功能已经上线，点击展开菜单查看具体功能。这些新功能将帮助您更好地管理业务流程。`;
+    } else {
+        title = `${featureName}本次履约控制塔二期页面！`;
+        message = `即将上线的页面原型效果！欢迎体验并提供宝贵建议！（设计稿仅供参考，有疑问请联系紫萌：lizimeng16）`;
+    }
+    
+    prompt.innerHTML = `
+        <h3>${title}</h3>
+        <p>${message}</p>
+        <div class="prompt-buttons">
+            <button class="btn-prompt btn-secondary" onclick="closeNewFeaturePrompt('${featureName}', false)">知道了</button>
+            <button class="btn-prompt btn-primary" onclick="closeNewFeaturePrompt('${featureName}', true)">体验功能</button>
+        </div>
+    `;
+    
+    // 添加到页面
+    document.body.appendChild(overlay);
+    document.body.appendChild(prompt);
+    
+    // 点击遮罩层关闭
+    overlay.addEventListener('click', () => {
+        closeNewFeaturePrompt(featureName, false);
+    });
+}
+
+// 关闭新功能提示
+function closeNewFeaturePrompt(featureName, shouldExperience) {
+    // 移除提示框和遮罩层
+    const prompt = document.querySelector('.new-feature-prompt');
+    const overlay = document.querySelector('.new-feature-prompt-overlay');
+    
+    if (prompt) prompt.remove();
+    if (overlay) overlay.remove();
+    
+    // 记录已显示过提示
+    const promptKey = `newFeaturePrompt_${featureName}`;
+    localStorage.setItem(promptKey, Date.now().toString());
+    
+    // 如果选择体验功能，则跳转到对应页面
+    if (shouldExperience && NEW_FEATURES[featureName]) {
+        // 这里可以添加跳转到具体功能页面的逻辑
+        console.log(`用户选择体验新功能: ${featureName}`);
+    }
+}
+
+// 检查是否应该显示提示
+function shouldShowPrompt(featureName) {
+    const currentTime = Date.now();
+    const featureReleaseTime = getFeatureReleaseTime();
+    
+    // 如果功能上线超过30天，不显示提示
+    if (currentTime - featureReleaseTime > NEW_FEATURE_DURATION) {
+        return false;
+    }
+    
+    // 如果用户手动隐藏了提示，不显示
+    const hideTime = localStorage.getItem('hideNewFeatureBadges');
+    if (hideTime && currentTime < parseInt(hideTime)) {
+        return false;
+    }
+    
+    return true;
+}
+
+// 获取功能上线时间（这里设置为当前时间，实际应用中应该设置为具体的上线时间）
+function getFeatureReleaseTime() {
+    // 可以从配置文件或服务器获取实际的上线时间
+    // 这里使用localStorage存储，如果没有则使用当前时间
+    let releaseTime = localStorage.getItem('newFeatureReleaseTime');
+    if (!releaseTime) {
+        releaseTime = Date.now().toString();
+        localStorage.setItem('newFeatureReleaseTime', releaseTime);
+    }
+    return parseInt(releaseTime);
+}
+
+// 检查并隐藏过期的新功能标识
+function checkAndHideExpiredFeatures() {
+    const currentTime = Date.now();
+    const featureReleaseTime = getFeatureReleaseTime();
+    
+    if (currentTime - featureReleaseTime > NEW_FEATURE_DURATION) {
+        hideAllNewFeatureBadges();
+        localStorage.setItem('hideNewFeatureBadges', (currentTime + NEW_FEATURE_DURATION).toString());
+    }
+}
+
+// 手动隐藏新功能标识（可以在设置中调用）
+function manuallyHideNewFeatures() {
+    hideAllNewFeatureBadges();
+    const currentTime = Date.now();
+    localStorage.setItem('hideNewFeatureBadges', (currentTime + NEW_FEATURE_DURATION).toString());
+    console.log('新功能标识已手动隐藏');
+}
+
+// 重置新功能标识（可以在设置中调用，用于测试或重新显示）
+function resetNewFeatureBadges() {
+    localStorage.removeItem('hideNewFeatureBadges');
+    localStorage.removeItem('newFeatureReleaseTime');
+    
+    // 清除所有已显示的提示记录
+    Object.keys(NEW_FEATURES).forEach(featureName => {
+        localStorage.removeItem(`newFeaturePrompt_${featureName}`);
+    });
+    
+    // 重新初始化
+    initializeNewFeatureBadges();
+    console.log('新功能标识已重置');
+}
+
+// 全局函数，供HTML中的onclick使用
+window.closeNewFeaturePrompt = closeNewFeaturePrompt;
+window.manuallyHideNewFeatures = manuallyHideNewFeatures;
+window.resetNewFeatureBadges = resetNewFeatureBadges;

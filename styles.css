@@ -2135,3 +2135,174 @@ body {
         border-bottom-color: #1890ff;
     }
 }
+
+/* ===== 新功能标识样式 ===== */
+.new-feature-badge {
+    display: inline-block;
+    background: linear-gradient(45deg, #ff4444, #ff6b6b);
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 8px;
+    font-weight: bold;
+    animation: newFeaturePulse 2s infinite;
+    box-shadow: 0 2px 4px rgba(255, 68, 68, 0.3);
+    white-space: nowrap;
+}
+
+@keyframes newFeaturePulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+}
+
+.new-feature-badge:hover {
+    background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+    transform: scale(1.1);
+    transition: all 0.3s ease;
+}
+
+/* 有新功能的菜单项特殊样式 */
+.has-new-features > .menu-link::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background: #ff4444;
+    border-radius: 50%;
+    animation: newFeaturePulse 2s infinite;
+}
+
+.has-new-features > .menu-link {
+    position: relative;
+}
+
+/* 新功能提示弹窗 */
+.new-feature-prompt {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    max-width: 400px;
+    min-width: 300px;
+    opacity: 0;
+    animation: slideIn 0.3s ease forwards;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.new-feature-prompt h3 {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.new-feature-prompt h3::before {
+    content: '🎉';
+    margin-right: 8px;
+    font-size: 18px;
+}
+
+.new-feature-prompt p {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 16px;
+}
+
+.new-feature-prompt .prompt-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.new-feature-prompt .btn-prompt {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.new-feature-prompt .btn-primary {
+    background: #1890ff;
+    color: white;
+}
+
+.new-feature-prompt .btn-primary:hover {
+    background: #40a9ff;
+}
+
+.new-feature-prompt .btn-secondary {
+    background: #f5f5f5;
+    color: #666;
+}
+
+.new-feature-prompt .btn-secondary:hover {
+    background: #e6e6e6;
+}
+
+.new-feature-prompt-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    opacity: 0;
+    animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .new-feature-badge {
+        font-size: 9px;
+        padding: 1px 4px;
+        margin-left: 4px;
+    }
+    
+    .new-feature-prompt {
+        max-width: 320px;
+        min-width: 280px;
+        margin: 20px;
+    }
+    
+    .has-new-features > .menu-link::after {
+        width: 6px;
+        height: 6px;
+        top: 6px;
+        right: 6px;
+    }
+}
