@@ -4223,6 +4223,7 @@ function renderOrderDetailPage() {
             <div class="order-detail-tabs">
                 <div class="tab-item active" onclick="switchOrderDetailTab('orderInfo', this)">订单信息</div>
                 <div class="tab-item" onclick="switchOrderDetailTab('afterSaleInfo', this)">售后信息</div>
+                <div class="tab-item" onclick="switchOrderDetailTab('orderComments', this)">订单留言</div>
             </div>
 
             <!-- 订单信息Tab内容 -->
@@ -4621,6 +4622,57 @@ function renderOrderDetailPage() {
                     </div>
                 </div>
             </div>
+
+            <!-- 订单留言Tab内容 -->
+            <div class="tab-content" id="orderCommentsTab" style="display: none;">
+                <div class="info-section">
+                    <h3 class="section-title">订单留言</h3>
+                    
+                    <!-- 留言列表 -->
+                    <div class="comments-list-container">
+                        <table class="comments-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 120px;">留言人ERP</th>
+                                    <th>留言内容</th>
+                                    <th style="width: 150px;">留言时间</th>
+                                    <th style="width: 80px;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="commentsTableBody">
+                                <!-- 示例数据 -->
+                                <tr>
+                                    <td>lizimeng16</td>
+                                    <td>请检查订单企配中心发货状态！ο(=•ω＜=)ρ⌒☆</td>
+                                    <td>2025-08-06 14:30:00</td>
+                                    <td>
+                                        <button class="btn-delete-comment" onclick="deleteComment(this)">删除</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>admin001</td>
+                                    <td>已核实，企配中心已正常发货，预计明日送达</td>
+                                    <td>2025-08-06 15:45:00</td>
+                                    <td>
+                                        <button class="btn-delete-comment" onclick="deleteComment(this)">删除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 新增留言 -->
+                    <div class="add-comment-container">
+                        <h4 class="add-comment-title">添加留言</h4>
+                        <div class="comment-input-area">
+                            <textarea id="commentInput" placeholder="请输入留言内容..." rows="4"></textarea>
+                            <div class="comment-actions">
+                                <button class="btn-submit-comment" onclick="submitComment()">提交留言</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     `;
     
@@ -4764,6 +4816,94 @@ function setupMenuClickPrompts() {
         });
     });
 }
+
+// 删除留言
+function deleteComment(button) {
+    if (confirm('确认删除这条留言吗？')) {
+        const row = button.closest('tr');
+        row.remove();
+        
+        // 检查是否还有留言，如果没有显示空状态
+        checkCommentsEmpty();
+    }
+}
+
+// 提交新留言
+function submitComment() {
+    const input = document.getElementById('commentInput');
+    const content = input.value.trim();
+    
+    if (!content) {
+        alert('请输入留言内容');
+        return;
+    }
+    
+    // 获取当前用户ERP（这里模拟，实际应该从登录信息获取）
+    const currentUser = 'currentUser'; // 实际项目中应该从用户会话获取
+    const currentTime = new Date().toLocaleString('zh-CN');
+    
+    // 创建新的留言行
+    const tableBody = document.getElementById('commentsTableBody');
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+        <td>${currentUser}</td>
+        <td>${content}</td>
+        <td>${currentTime}</td>
+        <td>
+            <button class="btn-delete-comment" onclick="deleteComment(this)">删除</button>
+        </td>
+    `;
+    
+    // 添加到表格开头（最新留言在上方）
+    tableBody.insertBefore(newRow, tableBody.firstChild);
+    
+    // 清空输入框
+    input.value = '';
+    
+    // 移除空状态（如果存在）
+    const emptyState = document.querySelector('.comments-empty-state');
+    if (emptyState) {
+        emptyState.remove();
+    }
+    
+    // 显示留言表格
+    const listContainer = document.querySelector('.comments-list-container');
+    if (listContainer) {
+        listContainer.style.display = 'block';
+    }
+}
+
+// 检查留言是否为空
+function checkCommentsEmpty() {
+    const tableBody = document.getElementById('commentsTableBody');
+    const listContainer = document.querySelector('.comments-list-container');
+    
+    if (tableBody && tableBody.children.length === 0) {
+        // 隐藏表格
+        if (listContainer) {
+            listContainer.style.display = 'none';
+        }
+        
+        // 显示空状态
+        const commentsSection = document.querySelector('#orderCommentsTab .info-section');
+        if (commentsSection && !document.querySelector('.comments-empty-state')) {
+            const emptyState = document.createElement('div');
+            emptyState.className = 'comments-empty-state';
+            emptyState.innerHTML = '<p>暂无留言记录</p>';
+            commentsSection.insertBefore(emptyState, document.querySelector('.add-comment-container'));
+        }
+    }
+}
+
+// 支持回车键提交留言（Ctrl+Enter）
+document.addEventListener('DOMContentLoaded', function() {
+    // 监听留言输入框的键盘事件
+    document.addEventListener('keydown', function(e) {
+        if (e.target.id === 'commentInput' && e.ctrlKey && e.key === 'Enter') {
+            submitComment();
+        }
+    });
+});
 
 // 显示新功能提示弹窗
 function showNewFeaturePrompt(featureName, type) {

@@ -2306,3 +2306,159 @@ body {
         right: 6px;
     }
 }
+
+/* 订单留言相关样式 */
+.comments-list-container {
+    margin-bottom: 30px;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e4e4e4;
+    overflow: hidden;
+}
+
+.comments-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    background: #fff;
+}
+
+.comments-table thead th {
+    background: #f8f9fa;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 2px solid #e4e4e4;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.comments-table tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #555;
+    font-size: 13px;
+    vertical-align: top;
+}
+
+.comments-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.comments-table tbody tr:hover {
+    background: #fafafa;
+}
+
+.btn-delete-comment {
+    padding: 4px 12px;
+    background: #ff5656;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.btn-delete-comment:hover {
+    background: #e54646;
+    transform: translateY(-1px);
+}
+
+.add-comment-container {
+    background: #fff;
+    border: 1px solid #e4e4e4;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.add-comment-title {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.comment-input-area {
+    position: relative;
+}
+
+.comment-input-area textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 100px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+.comment-input-area textarea:focus {
+    outline: none;
+    border-color: #007AFF;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.comment-input-area textarea::placeholder {
+    color: #999;
+}
+
+.comment-actions {
+    margin-top: 12px;
+    text-align: right;
+}
+
+.btn-submit-comment {
+    padding: 10px 24px;
+    background: #007AFF;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
+}
+
+.btn-submit-comment:hover {
+    background: #0056D6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+.btn-submit-comment:active {
+    transform: translateY(0);
+}
+
+/* 空状态样式 */
+.comments-empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+    font-size: 14px;
+}
+
+/* 订单留言响应式设计 */
+@media (max-width: 768px) {
+    .comments-table {
+        font-size: 12px;
+    }
+    
+    .comments-table thead th,
+    .comments-table tbody td {
+        padding: 8px 12px;
+    }
+    
+    .add-comment-container {
+        padding: 16px;
+    }
+    
+    .comment-input-area textarea {
+        min-height: 80px;
+    }
+}
