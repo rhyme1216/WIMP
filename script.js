@@ -251,6 +251,9 @@ function navigateToPage(pageName) {
         renderOrderListPage();
     } else if (pageName === 'orderDetail') {
         renderOrderDetailPage();
+    } else if (pageName === '订单查询') {
+        // 客服管理-订单查询页面，使用和orderDetail相同的页面结构，但不预填订单号
+        renderOrderDetailPage();
     } else if (pageName === '泰国订单列表') {
         renderCountryOrderListPage('泰国');
     } else if (pageName === '越南订单列表') {
@@ -4735,7 +4738,9 @@ const NEW_FEATURES = {
     '香港订单列表': { module: '订单管理', isNew: true },
     // 履约管理模块新功能
     '末端派送列表': { module: '履约管理', isNew: true },
-    '履约异常列表': { module: '履约管理', isNew: true }
+    '履约异常列表': { module: '履约管理', isNew: true },
+    // 客服管理
+    '订单查询': { module: '客服管理', isNew: true }
 };
 
 // 新功能显示期限（30天）
