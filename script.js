@@ -837,7 +837,7 @@ ${ORDER_STATUS_OPTIONS_HTML}
                         <th class="scrollable-column">异常开始时间</th>
                         <th class="scrollable-column">异常关闭时间</th>
                         <th class="scrollable-column">WOMS工单号</th>
-                        <th class="fixed-column last">操作</th>
+                        <th class="fixed-action">操作</th>
                     </tr>
                 </thead>
                 <tbody id="exceptionTableBody">
@@ -856,7 +856,7 @@ ${ORDER_STATUS_OPTIONS_HTML}
                         <td>2024-07-06 08:00</td>
                         <td>-</td>
                         <td>WOMS2024070101</td>
-                        <td class="fixed-column last">
+                        <td class="fixed-action">
                             <a href="#" class="action-link" onclick="viewExceptionDetail('ORD20240701001')">详情</a>
                         </td>
                     </tr>
@@ -874,7 +874,7 @@ ${ORDER_STATUS_OPTIONS_HTML}
                         <td>2024-07-04 09:30</td>
                         <td>2024-07-05 16:45</td>
                         <td>WOMS2024070102</td>
-                        <td class="fixed-column last">
+                        <td class="fixed-action">
                             <a href="#" class="action-link" onclick="viewExceptionDetail('ORD20240701002')">详情</a>
                         </td>
                     </tr>
@@ -892,7 +892,7 @@ ${ORDER_STATUS_OPTIONS_HTML}
                         <td>2024-07-02 11:00</td>
                         <td>-</td>
                         <td>WOMS2024070103</td>
-                        <td class="fixed-column last">
+                        <td class="fixed-action">
                             <a href="#" class="action-link" onclick="viewExceptionDetail('ORD20240701003')">详情</a>
                         </td>
                     </tr>
@@ -1162,7 +1162,7 @@ ${ORDER_STATUS_OPTIONS_HTML}
                         </select>
                     </div>
                     <div class="order-form-group">
-                        <label>签单状态</label>
+                        <label>签单审批状态</label>
                         <select id="signStatus">
                             <option value="">请选择</option>
                             <option value="待审批">待审批</option>
@@ -1187,7 +1187,7 @@ ${ORDER_STATUS_OPTIONS_HTML}
                         </div>
                     </div>
                     <div class="order-form-group">
-                        <label>一段入仓时间</label>
+                        <label>集运入仓时间</label>
                         <div class="date-range-input">
                             <input type="date" id="firstSegmentInStart" placeholder="请选择">
                             <span class="separator">至</span>
@@ -1257,12 +1257,11 @@ ${ORDER_STATUS_OPTIONS_HTML}
                         <th class="scrollable-column">订单金额</th>
                         <th class="scrollable-column">下单时间</th>
                         <th class="scrollable-column">客户审批时间</th>
-                        <th class="scrollable-column">付款时间</th>
                         <th class="scrollable-column">订单确认时间</th>
                         <th class="scrollable-column">备货仓名称</th>
                         <th class="scrollable-column">一段运单号</th>
-                        <th class="scrollable-column">计划发货时间</th>
-                        <th class="scrollable-column">发货时间</th>
+                        <th class="scrollable-column">承诺发货时间</th>
+                        <th class="scrollable-column">实际发货时间</th>
                         <th class="scrollable-column">集运中心入仓时间</th>
                         <th class="scrollable-column">集运中心发货时间</th>
                         <th class="scrollable-column">企配名称</th>
@@ -1272,7 +1271,7 @@ ${ORDER_STATUS_OPTIONS_HTML}
                         <th class="scrollable-column">实物妥投时间</th>
                         <th class="scrollable-column">承诺送达时间</th>
                         <th class="scrollable-column">计划妥投时间</th>
-                        <th class="scrollable-column">签单状态</th>
+                        <th class="scrollable-column">签单审批状态</th>
                         <th class="scrollable-column">系统妥投时间</th>
                         <th class="scrollable-column">完成时间</th>
                         <th class="scrollable-column">hold单状态</th>
@@ -1391,7 +1390,6 @@ ${ORDER_STATUS_OPTIONS_HTML}
                             <div class="field-group optional-fields">
                                 <label><input type="checkbox" value="thirdPartyNumber"> 三方单号</label>
                                 <label><input type="checkbox" value="orderAccount"> 下单账号</label>
-                                <label><input type="checkbox" value="paymentTime"> 付款时间</label>
                                 <label><input type="checkbox" value="domesticOrderNumber"> 内贸订单号</label>
                                 <label><input type="checkbox" value="orderConfirmTime"> 订单确认时间</label>
                                 <label><input type="checkbox" value="supplierName"> 供应商名称</label>
@@ -1453,7 +1451,6 @@ ${ORDER_STATUS_OPTIONS_HTML}
                             <label><input type="checkbox" value="orderAmount" checked> 订单金额</label>
                             <label><input type="checkbox" value="orderTime" checked> 下单时间</label>
                             <label><input type="checkbox" value="customerApprovalTime" checked> 客户审批时间</label>
-                            <label><input type="checkbox" value="paymentTime" checked> 付款时间</label>
                             <label><input type="checkbox" value="orderConfirmTime" checked> 订单确认时间</label>
                         </div>
                         <div class="field-group">
@@ -1472,7 +1469,7 @@ ${ORDER_STATUS_OPTIONS_HTML}
                             <label><input type="checkbox" value="actualDeliveryTime" checked> 实物妥投时间</label>
                             <label><input type="checkbox" value="promisedDeliveryTime" checked> 承诺送达时间</label>
                             <label><input type="checkbox" value="plannedDeliveryTime" checked> 计划妥投时间</label>
-                            <label><input type="checkbox" value="signStatus" checked> 签单状态</label>
+                            <label><input type="checkbox" value="signStatus" checked> 签单审批状态</label>
                             <label><input type="checkbox" value="systemDeliveryTime" checked> 系统妥投时间</label>
                             <label><input type="checkbox" value="completeTime" checked> 完成时间</label>
                             <label><input type="checkbox" value="holdStatus" checked> hold单状态</label>
@@ -1501,70 +1498,6 @@ ${ORDER_STATUS_OPTIONS_HTML}
                 </div>
                 <div class="modal-footer">
                     <button class="btn-modal primary" onclick="closeModal('orderExportModal')">确认</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 隐藏字段选择模态框 -->
-        <div class="modal-overlay" id="columnSelectorModal">
-            <div class="modal-content large">
-                <div class="modal-header">
-                    <span class="modal-title">选择显示字段</span>
-                    <button class="modal-close" onclick="closeModal('columnSelectorModal')">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="column-selector-container">
-                        <div class="field-group">
-                            <label><input type="checkbox" value="orderNumber" checked disabled> 订单编号</label>
-                            <label><input type="checkbox" value="parentOrderNumber" checked> 父单编号</label>
-                            <label><input type="checkbox" value="orderSource" checked> 订单来源</label>
-                            <label><input type="checkbox" value="thirdPartyNumber" checked> 三方单号</label>
-                            <label><input type="checkbox" value="customerPO" checked> 客户PO号</label>
-                            <label><input type="checkbox" value="domesticOrderNumber" checked> 内贸订单号</label>
-                            <label><input type="checkbox" value="purchaseOrderNumber" checked> 采购单号</label>
-                            <label><input type="checkbox" value="businessMode" checked> 业务模式</label>
-                            <label><input type="checkbox" value="orderStatus" checked> 订单状态</label>
-                        </div>
-                        <div class="field-group">
-                            <label><input type="checkbox" value="orderAccount" checked> 下单账号</label>
-                            <label><input type="checkbox" value="contractNumber" checked> 合同号</label>
-                            <label><input type="checkbox" value="customerName" checked> 客户名称</label>
-                            <label><input type="checkbox" value="currency" checked> 币种</label>
-                            <label><input type="checkbox" value="orderAmount" checked> 订单金额</label>
-                            <label><input type="checkbox" value="orderTime" checked> 下单时间</label>
-                            <label><input type="checkbox" value="customerApprovalTime" checked> 客户审批时间</label>
-                            <label><input type="checkbox" value="paymentTime" checked> 付款时间</label>
-                            <label><input type="checkbox" value="orderConfirmTime" checked> 订单确认时间</label>
-                        </div>
-                        <div class="field-group">
-                            <label><input type="checkbox" value="stockWarehouseName" checked> 备货仓名称</label>
-                            <label><input type="checkbox" value="firstSegmentNumber" checked> 一段运单号</label>
-                            <label><input type="checkbox" value="plannedShipTime" checked> 计划发货时间</label>
-                            <label><input type="checkbox" value="shipTime" checked> 发货时间</label>
-                            <label><input type="checkbox" value="consolidationInTime" checked> 集运中心入仓时间</label>
-                            <label><input type="checkbox" value="consolidationOutTime" checked> 集运中心发货时间</label>
-                            <label><input type="checkbox" value="enterpriseName" checked> 企配名称</label>
-                            <label><input type="checkbox" value="secondSegmentNumber" checked> 二段运单号</label>
-                            <label><input type="checkbox" value="enterpriseReceiveTime" checked> 企配收货时间</label>
-                        </div>
-                        <div class="field-group">
-                            <label><input type="checkbox" value="enterpriseShipTime" checked> 企配发货时间</label>
-                            <label><input type="checkbox" value="actualDeliveryTime" checked> 实物妥投时间</label>
-                            <label><input type="checkbox" value="promisedDeliveryTime" checked> 承诺送达时间</label>
-                            <label><input type="checkbox" value="plannedDeliveryTime" checked> 计划妥投时间</label>
-                            <label><input type="checkbox" value="signStatus" checked> 签单状态</label>
-                            <label><input type="checkbox" value="systemDeliveryTime" checked> 系统妥投时间</label>
-                            <label><input type="checkbox" value="completeTime" checked> 完成时间</label>
-                            <label><input type="checkbox" value="holdStatus" checked> hold单状态</label>
-                            <label><input type="checkbox" value="actions" checked disabled> 操作</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn-modal secondary" onclick="selectAllColumns()">全选</button>
-                    <button class="btn-modal secondary" onclick="clearAllColumns()">清空</button>
-                    <button class="btn-modal secondary" onclick="closeModal('columnSelectorModal')">取消</button>
-                    <button class="btn-modal primary" onclick="confirmColumnSelection()">确认</button>
                 </div>
             </div>
         </div>
@@ -1660,7 +1593,6 @@ function renderOrderTable(data) {
             <td>${order['订单金额'] || ''}</td>
             <td>${order['下单时间'] || ''}</td>
             <td>${order['客户审批时间'] || ''}</td>
-            <td>${order['付款时间'] || ''}</td>
             <td>${order['订单确认时间'] || ''}</td>
             <td>${order['备货仓名称'] || ''}</td>
             <td>${order['一段运单号'] || ''}</td>
@@ -1675,7 +1607,7 @@ function renderOrderTable(data) {
             <td>${order['实物妥投时间'] || ''}</td>
             <td>${order['承诺送达时间'] || ''}</td>
             <td>${order['计划妥投时间'] || ''}</td>
-            <td>${order['签单状态'] || ''}</td>
+            <td>${order['签单审批状态'] || ''}</td>
             <td>${order['系统妥投时间'] || ''}</td>
             <td>${order['完成时间'] || ''}</td>
             <td>${order['hold单状态'] || ''}</td>
@@ -2148,7 +2080,7 @@ function searchOrders() {
         if (searchConditions.customerPO && !(order['客户PO号'] || '').includes(searchConditions.customerPO)) return false;
         if (searchConditions.enterpriseWarehouse && order['企配名称'] !== searchConditions.enterpriseWarehouse) return false;
         if (searchConditions.stockWarehouse && order['备货仓名称'] !== searchConditions.stockWarehouse) return false;
-        if (searchConditions.signStatus && order['签单状态'] !== searchConditions.signStatus) return false;
+        if (searchConditions.signStatus && order['签单审批状态'] !== searchConditions.signStatus) return false;
         if (searchConditions.holdStatus && order['hold单状态'] !== searchConditions.holdStatus) return false;
         
         // 日期范围筛选
@@ -2449,26 +2381,25 @@ function updateTableColumns(selectedColumns) {
         'orderAmount': 13,
         'orderTime': 14,
         'customerApprovalTime': 15,
-        'paymentTime': 16,
-        'orderConfirmTime': 17,
-        'stockWarehouseName': 18,
-        'firstSegmentNumber': 19,
-        'plannedShipTime': 20,
-        'shipTime': 21,
-        'consolidationInTime': 22,
-        'consolidationOutTime': 23,
-        'enterpriseName': 24,
-        'secondSegmentNumber': 25,
-        'enterpriseReceiveTime': 26,
-        'enterpriseShipTime': 27,
-        'actualDeliveryTime': 28,
-        'promisedDeliveryTime': 29,
-        'plannedDeliveryTime': 30,
-        'signStatus': 31,
-        'systemDeliveryTime': 32,
-        'completeTime': 33,
-        'holdStatus': 34,
-        'actions': 35
+        'orderConfirmTime': 16,
+        'stockWarehouseName': 17,
+        'firstSegmentNumber': 18,
+        'plannedShipTime': 19,
+        'shipTime': 20,
+        'consolidationInTime': 21,
+        'consolidationOutTime': 22,
+        'enterpriseName': 23,
+        'secondSegmentNumber': 24,
+        'enterpriseReceiveTime': 25,
+        'enterpriseShipTime': 26,
+        'actualDeliveryTime': 27,
+        'promisedDeliveryTime': 28,
+        'plannedDeliveryTime': 29,
+        'signStatus': 30,
+        'systemDeliveryTime': 31,
+        'completeTime': 32,
+        'holdStatus': 33,
+        'actions': 34
     };
     
     // 隐藏/显示列
@@ -2852,7 +2783,7 @@ function updateExceptionTable() {
                 <td>${item.exceptionStartTime}</td>
                 <td>${item.exceptionCloseTime}</td>
                 <td>${item.womsNo}</td>
-                <td class="fixed-column last">
+                <td class="fixed-action">
                     <a href="#" class="action-link" onclick="viewExceptionDetail('${item.orderNo}')">详情</a>
                 </td>
             </tr>
@@ -3787,7 +3718,6 @@ function renderCountryOrderTable(country, data) {
                 <td>${order['订单金额'] || ''}</td>
                 <td>${order['下单时间'] || ''}</td>
                 <td>${order['客户审批时间'] || ''}</td>
-                <td>${order['付款时间'] || ''}</td>
                 <td>${order['订单确认时间'] || ''}</td>
                 <td>${order['备货仓名称'] || ''}</td>
                 <td>${order['一段运单号'] || ''}</td>
@@ -3802,7 +3732,7 @@ function renderCountryOrderTable(country, data) {
                 <td>${order['实物妥投时间'] || ''}</td>
                 <td>${order['承诺送达时间'] || ''}</td>
                 <td>${order['计划妥投时间'] || ''}</td>
-                <td>${order['签单状态'] || ''}</td>
+                <td>${order['签单审批状态'] || ''}</td>
                 <td>${order['系统妥投时间'] || ''}</td>
                 <td>${order['完成时间'] || ''}</td>
                 <td>${order['hold单状态'] || ''}</td>
@@ -4493,37 +4423,6 @@ function renderOrderDetailPage() {
                     </div>
                 </div>
 
-                <!-- 关联信息 -->
-                <div class="info-section">
-                    <h3 class="section-title">关联信息</h3>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <label>iop单号：</label>
-                            <span id="iopOrderNo">IOP001</span>
-                        </div>
-                        <div class="info-item">
-                            <label>账期单号：</label>
-                            <span id="creditOrderNo">CR001</span>
-                        </div>
-                        <div class="info-item">
-                            <label>账期单类型：</label>
-                            <span id="creditOrderType">月结</span>
-                        </div>
-                        <div class="info-item">
-                            <label>贸易主体：</label>
-                            <span id="tradeEntity">京东国际</span>
-                        </div>
-                        <div class="info-item">
-                            <label>预付款比例：</label>
-                            <span id="prepaymentRatio">30%</span>
-                        </div>
-                        <div class="info-item">
-                            <label>尾款账期：</label>
-                            <span id="finalPaymentPeriod">30天</span>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- 订单跟踪 -->
                 <div class="info-section">
                     <h3 class="section-title">订单跟踪</h3>
@@ -4639,7 +4538,7 @@ function renderOrderDetailPage() {
                                     <th style="width: 120px;">留言人ERP</th>
                                     <th>留言内容</th>
                                     <th style="width: 150px;">留言时间</th>
-                                    <th style="width: 80px;">操作</th>
+                                    <th class="fixed-action" style="width: 80px;">操作</th>
                                 </tr>
                             </thead>
                             <tbody id="commentsTableBody">

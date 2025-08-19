@@ -1262,7 +1262,29 @@ body {
 
 .order-table th.fixed-action {
     background-color: #fafafa;
-    z-index: 20;
+    z-index: 25;
+    position: sticky;
+    top: 0;
+    right: 0;
+}
+
+/* 通用表格固定操作列样式 */
+table th.fixed-action,
+table td.fixed-action {
+    position: sticky;
+    right: 0;
+    background-color: white;
+    z-index: 15;
+    box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
+    min-width: 120px;
+}
+
+table th.fixed-action {
+    background-color: #fafafa;
+    z-index: 25;
+    position: sticky;
+    top: 0;
+    right: 0;
 }
 
 .order-table tbody tr:hover {
@@ -1271,6 +1293,11 @@ body {
 
 .order-table tbody tr:hover .fixed-column,
 .order-table tbody tr:hover .fixed-action {
+    background-color: #f5f5f5;
+}
+
+/* 通用表格悬停样式 */
+table tbody tr:hover td.fixed-action {
     background-color: #f5f5f5;
 }
 
