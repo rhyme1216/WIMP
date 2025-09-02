@@ -1281,6 +1281,9 @@ ${ORDER_STATUS_OPTIONS_HTML}
                 <tbody id="orderTableBody">
                     <!-- 示例数据 -->
                     <tr>
+                        <td class="fixed-column checkbox-column">
+                            <input type="checkbox" class="row-checkbox" value="ORD20240701001" onchange="updateSelectAllState()">
+                        </td>
                         <td class="fixed-column first">ORD20240701001</td>
                         <td>PARENT001</td>
                         <td>WIOP</td>
@@ -4270,6 +4273,8 @@ function renderOrderDetailPage() {
                                     <th>商品图片</th>
                                     <th>商品MKU</th>
                                     <th>商品名称</th>
+                                    <th>库存状态</th>
+                                    <th>是否报关</th>
                                     <th>货源国</th>
                                     <th>采销ERP</th>
                                     <th>币种</th>
@@ -4283,6 +4288,8 @@ function renderOrderDetailPage() {
                                     <td><img src="https://via.placeholder.com/50x50" alt="商品图片" class="product-image"></td>
                                     <td>MKU001</td>
                                     <td>华为智能手机</td>
+                                    <td>现货</td>
+                                    <td>是</td>
                                     <td>中国</td>
                                     <td>ERP001</td>
                                     <td>USD</td>
